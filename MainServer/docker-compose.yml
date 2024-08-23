@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  server1:
+    build: .
+    container_name: server-1
+    ports:
+      - "8000:8000"  
+    environment:
+      - PORT=8000  # Set the PORT environment variable
+      - server=server_1
+    volumes:
+      - .:/app  # Bind mount 
+    networks:
+      - LoadBalancerNetwork
+
+  server2:
+    build: . 
+    container_name: server-2
+    ports:
+      - "8001:8000" 
+    environment:
+      - PORT=8000  # Set the PORT environment variable
+      - server=server_2
+    volumes:
+      - .:/app # Bind mount 
+    networks:
+      - LoadBalancerNetwork
+
+networks:
+  LoadBalancerNetwork:
+    name: loadbalancing
+    driver: bridge
+    external: false
+
+  

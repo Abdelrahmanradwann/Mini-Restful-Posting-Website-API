@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  loadbalancer:
+    build: .
+    container_name: load-balancer
+    networks:
+      - LoadBalancerNetwork
+      - OutsiderNetwork
+    ports:
+      - 8080:8080
+
+networks:
+  LoadBalancerNetwork:
+    name: loadbalancing
+    driver: bridge
+    external: false
+  OutsiderNetwork:
+    name: OutsiderNetwork
+    external: true
