@@ -1,0 +1,23 @@
+1) nginx setup for load balancing
+
+2) 2 servers for distributing requests on them
+
+3) object store setup 
+    for temp storage 
+    for permanent storage -> 3 buckets 
+        1) vidoes 2) photos 3) profile pic
+        will contain replica for availability if one was down
+
+4) kafka setup for messaging system 
+    2 brokers
+    broker 1 for vid and broker 2 for images whether profile pic or media
+    each broker contains 2 partitions
+    2 consumer groups and each group contains 2 consumers cuz we 've 2 partitions and reduce the load
+    consumers then send the video to encoding service
+    I will try to make encoding service scalable (min 2, max 4)
+
+5) scalability of encoding service or make 3 containers directly to make it easier
+
+6) database mysql master and will replicate to two slaves database instances
+    
+
