@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  kafka1:
+    image: bitnami/kafka:latest
+    container_name: kafka1
+    ports:
+      - "9092:9092"
+      - "9093:9093"
+    environment:
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_NODE_ID: 1
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka1:9093,2@kafka2:9093"
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka1:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LOG_DIRS: /kafka/data
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 2
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_KRAFT_CLUSTER_ID: KCxY810-QNifDhrmn0nxOQ
+      KAFKA_CFG_LOG_RETENTION_HOURS: 48
+      KAFKA_CFG_MESSAGE_MAX_BYTES: 2000000000
+      KAFKA_MAX_REQUEST_SIZE: 2000000000
+      KAFKA_CFG_REPLICA_FETCH_MAX_BYTES: 2000000000
+      KAFKA_CFG_LOG_SEGMENT_BYTES: 2000000000   
+    volumes:
+      - kafka-data1:/kafka/data
+    networks:
+      - event-streaming
+
+  kafka2:
+    image: bitnami/kafka:latest
+    container_name: kafka2
+    ports:
+      - "9094:9092"
+      - "9095:9093"
+    environment:
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_NODE_ID: 2
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka1:9093,2@kafka2:9093"
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka2:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LOG_DIRS: /kafka/data
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 2
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_KRAFT_CLUSTER_ID: KCxY810-QNifDhrmn0nxOQ
+      KAFKA_CFG_LOG_RETENTION_HOURS: 48
+      KAFKA_CFG_MESSAGE_MAX_BYTES: 2000000000
+      KAFKA_MAX_REQUEST_SIZE: 2000000000
+      KAFKA_CFG_REPLICA_FETCH_MAX_BYTES: 2000000000
+      KAFKA_CFG_LOG_SEGMENT_BYTES: 2000000000     
+    volumes:
+      - kafka-data2:/kafka/data
+    networks:
+      - event-streaming
+
+volumes:
+  kafka-data1:
+    driver: local
+    driver_opts:
+      type: "none"
+      o: "bind"
+      device: "C:\\path\\to\\local\\kafka-data1"
+  kafka-data2:
+    driver: local
+    driver_opts:
+      type: "none"
+      o: "bind"
+      device: "C:\\path\\to\\local\\kafka-data2"
+
+networks:
+  event-streaming:
+    name: event-streaming
+    external: false

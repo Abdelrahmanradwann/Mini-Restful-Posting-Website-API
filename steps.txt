@@ -4,8 +4,8 @@
 
 3) object store setup 
     for temp storage 
-    for permanent storage -> 3 buckets 
-        1) vidoes 2) photos 3) profile pic
+    for permanent storage -> 2 buckets 
+        1) vidoes 2) photos & profile pic
         will contain replica for availability if one was down
 
 4) kafka setup for messaging system 
