@@ -1,0 +1,28 @@
+
+
+-----------------------------------
+In master 
+
+CREATE USER 'replicator'@'%' IDENTIFIED BY 'repl';  -- Use the same password as set in docker-compose.yml
+GRANT REPLICATION SLAVE ON *.* TO 'replicator'@'%';  -- Grant replication privileges
+FLUSH PRIVILEGES;
+
+
+## We create a user with user name and passowrd 
+## allow all hosts to connect to this user using email and password
+## update or commit the changes
+
+---------------------------------------
+
+
+IN SLAVE 
+
+CHANGE MASTER TO
+MASTER_HOST='master',
+MASTER_USER='replicator',
+MASTER_PASSWORD='repl',
+MASTER_LOG_FILE='mysql-bin.000003',
+MASTER_LOG_POS=868,   # it depends where the position of the file is;
+GET_MASTER_PUBLIC_KEY=1;   # related to encryption and to allow DB read msgs from each other
+
+START SLAVE;

@@ -1,0 +1,71 @@
+version: '3.8'
+services:
+  master:
+    build: .
+    container_name: master
+    environment:
+      MYSQL_ROOT_PASSWORD: 'password'
+      MYSQL_DATABASE: 'Mini-posting-website'
+    ports:
+      - "3306:3306"
+    command:
+      [
+        "mysqld",
+        "--server-id=1",
+        "--log-bin=mysql-bin",
+        "--binlog-do-db=Mini-posting-website"  #  option in MySQL is used to specify which databases should be included in the log file (mysql-bin)
+      ]
+    volumes:
+      - mysql-master:/var/lib/mysql
+    networks:
+      - database-network
+
+  slave1:
+    build: .
+    container_name: slave1
+    environment:
+      MYSQL_ROOT_PASSWORD: 'password'
+    ports:
+      - "3307:3306"
+    depends_on:
+      - master
+    command: [
+      "mysqld",
+      "--server-id=2",                  
+      "--log-bin=mysql-bin",              
+      "--read-only=1"                      # Set slave to read-only
+    ]
+    volumes:
+      - mysql-slave1:/var/lib/mysql
+    networks:
+      - database-network
+
+  slave2:
+    build: .
+    container_name: slave2
+    environment:
+      MYSQL_ROOT_PASSWORD: 'password'
+    ports:
+      - "3308:3306"
+    depends_on:
+      - master
+    command: [
+      "mysqld",
+      "--server-id=3",                    
+      "--log-bin=mysql-bin",               
+      "--read-only=1"                      
+    ]
+    volumes:
+      - mysql-slave2:/var/lib/mysql
+    networks:
+      - database-network
+
+volumes:
+  mysql-master:
+  mysql-slave1:
+  mysql-slave2:
+
+networks:
+  database-network:
+    external: false
+    name: database-network

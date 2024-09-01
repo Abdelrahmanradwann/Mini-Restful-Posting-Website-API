@@ -10,7 +10,8 @@ services:
       - PORT=8000  # Set the PORT environment variable
       - server=server_1
     volumes:
-      - .:/app  # Bind mount 
+      - "D:/Mini posting website/Mini posting website/MainServer:/app"
+
     networks:
       - LoadBalancerNetwork
       - event-streaming
@@ -25,7 +26,7 @@ services:
       - PORT=8000  # Set the PORT environment variable
       - server=server_2
     volumes:
-      - .:/app # Bind mount 
+      - "D:/Mini posting website/Mini posting website/MainServer:/app"
     networks:
       - LoadBalancerNetwork
       - event-streaming

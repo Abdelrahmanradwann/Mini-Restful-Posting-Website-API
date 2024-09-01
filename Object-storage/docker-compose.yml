@@ -5,8 +5,8 @@ services:
     image: minio/minio
     container_name: minio-perm
     ports:
-      - "9000:9000"  # This one for the UI to manage the buckets inside the storage
-      - "9001:9001"  # For administration and health checking if I want to
+      - "9000:9000"  # API
+      - "9001:9001"  # WebUi
     environment:
       MINIO_ROOT_USER: ${MINIO_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_PASSWORD}

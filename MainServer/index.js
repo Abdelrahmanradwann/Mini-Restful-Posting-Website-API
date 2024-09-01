@@ -5,12 +5,20 @@ const kafkaTest2  = require('./routes/Kafka-test/consumer');
 
 
 
-// app.get('/', (req, res) => {
-//     res.send("hello world "+ process.env.server);
-// };
-app.use(kafkaTest);
-app.use(kafkaTest2);
 
+
+app.use(kafkaTest);
+app.use(kafkaTest2); 
+
+app.use("/", (req, res) => {
+    res.send("<h1>Hello world</h1>")
+})
+
+
+function test() {
+    console.log("hello world")
+}
+test()
 
 app.listen(process.env.PORT, () => {
     console.log(process.env.PORT)

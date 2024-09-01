@@ -27,7 +27,7 @@ router.get("/producer", async(req, res) => {
 
         console.log(`Send Successfully! ${JSON.stringify(result)}`)
            await producer.disconnect();
-           res.send("dummy")
+           res.send("No")
     }
     catch(ex)
     {
