@@ -1,0 +1,27 @@
+---SIGN-UP
+
+User write down his info
+
+Check that everything needed was sent and not null
+
+Check that email does not exist
+
+Check the len if email and password and make sure they are in the right format
+Trim them if necessary 
+convert email to lowercase before saving
+
+Num followers = num following = friend no = 0
+
+No bio
+
+if pic exists 
+ 1 -> then first of all we need to store the photo in the object store buffer and add meta data to the broker of images  ( meta data can't be the id as user will not have been created yet so it will be email)
+
+ 2 -> consumer consume the meta data from the broker and pass it to the encoding service
+
+ 3 -> after encoding it we will store it in the object store and once it is done save the use info in DB
+
+if pic doesnot exist  then save directly to the DB
+
+Before saving create token for this user for authentication 
+

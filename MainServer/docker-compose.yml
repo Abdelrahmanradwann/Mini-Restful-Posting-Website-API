@@ -15,6 +15,8 @@ services:
     networks:
       - LoadBalancerNetwork
       - event-streaming
+      - database-network
+
 
 
   server2:
@@ -30,6 +32,7 @@ services:
     networks:
       - LoadBalancerNetwork
       - event-streaming
+      - database-network
 
 networks:
   LoadBalancerNetwork:
@@ -39,6 +42,9 @@ networks:
   event-streaming:
     name: event-streaming
     driver: bridge
+    external: false
+  database-network:
+    name: database-network
     external: false
 
   

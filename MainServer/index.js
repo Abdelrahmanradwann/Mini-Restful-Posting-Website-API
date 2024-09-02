@@ -1,24 +1,21 @@
 const express = require('express');
 const app = express();
-const kafkaTest = require('./routes/Kafka-test/producer');
-const kafkaTest2  = require('./routes/Kafka-test/consumer');
+// const kafkaTest = require('./routes/Kafka-test/producer');
+// const kafkaTest2  = require('./routes/Kafka-test/consumer');
+const authRoute = require('./routes/auth');
 
 
 
 
-
-app.use(kafkaTest);
-app.use(kafkaTest2); 
-
-app.use("/", (req, res) => {
-    res.send("<h1>Hello world</h1>")
-})
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }))
 
 
-function test() {
-    console.log("hello world")
-}
-test()
+app.use(authRoute);
+
+
+
+
 
 app.listen(process.env.PORT, () => {
     console.log(process.env.PORT)
