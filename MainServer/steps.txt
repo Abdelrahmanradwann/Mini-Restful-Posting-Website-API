@@ -23,5 +23,21 @@ if pic exists
 
 if pic doesnot exist  then save directly to the DB
 
-Before saving create token for this user for authentication 
+Before saving create token for this user for authentication and encrypt the password
+
+
+---------------------------------------
+LOG-in
+
+User types email and password
+
+get user by email
+
+compare between the hashed pw and the typed pw
+
+gen token for the User
+
+return the token attached with the user
+
+---------------------------------------
 
