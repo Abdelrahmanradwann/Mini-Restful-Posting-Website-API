@@ -71,6 +71,7 @@ class User extends UserMetaData {
         let query = '';
         let params = [];
 
+        console.log(email)
         // Check if the email exists in the UserMetaData table
         if (email) {
             query = 'SELECT 1 FROM UserMetaData WHERE email = ? LIMIT 1';

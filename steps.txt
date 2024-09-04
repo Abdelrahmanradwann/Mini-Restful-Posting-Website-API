@@ -12,12 +12,9 @@
     2 brokers
     broker 1 for vid and broker 2 for images whether profile pic or media
     each broker contains 2 partitions
-    2 consumer groups and each group contains 2 consumers cuz we 've 2 partitions and reduce the load
-    consumers then send the video to encoding service
-    I will try to make encoding service scalable (min 2, max 4)
+    1 consumer group contains 3 consumers ( video encoding )
 
-5) scalability of encoding service or make 3 containers directly to make it easier
 
-6) database mysql master and will replicate to two slaves database instances
+5) database mysql master and will replicate to two slaves database instances
     
 

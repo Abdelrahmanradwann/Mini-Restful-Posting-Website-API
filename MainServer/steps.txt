@@ -15,11 +15,8 @@ Num followers = num following = friend no = 0
 No bio
 
 if pic exists 
- 1 -> then first of all we need to store the photo in the object store buffer and add meta data to the broker of images  ( meta data can't be the id as user will not have been created yet so it will be email)
-
- 2 -> consumer consume the meta data from the broker and pass it to the encoding service
-
- 3 -> after encoding it we will store it in the object store and once it is done save the use info in DB
+ 1 -> store directly to the main object storage
+ 2 -> save user info in DB
 
 if pic doesnot exist  then save directly to the DB
 

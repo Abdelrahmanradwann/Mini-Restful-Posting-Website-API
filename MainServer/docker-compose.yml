@@ -16,6 +16,7 @@ services:
       - LoadBalancerNetwork
       - event-streaming
       - database-network
+      - ObjectStore
 
 
 
@@ -33,6 +34,7 @@ services:
       - LoadBalancerNetwork
       - event-streaming
       - database-network
+      - ObjectStore
 
 networks:
   LoadBalancerNetwork:
@@ -45,6 +47,9 @@ networks:
     external: false
   database-network:
     name: database-network
+    external: false
+  ObjectStore:
+    name: ObjectStore
     external: false
 
   
