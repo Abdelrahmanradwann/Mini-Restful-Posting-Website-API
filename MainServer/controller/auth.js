@@ -7,10 +7,31 @@ const { objectStore } = require('../util/storage');
 const Busboy = require('busboy');
 
 
+
+function validation({ metadata }) {
+        let errors = [];
+        if (!metadata.email) {
+            errors.push('Please enter a valid email address');
+    
+        }
+        if (!metadata.userName) {
+            errors.push('User name must be given');
+        }
+        if (!metadata.password) {
+            errors.push('Password must be between 5 to 35 characters');
+        }
+            
+        if (!metadata.isPicExist) {
+            errors.push('Determine whether you will upload profike pic or not');
+    }
+    return errors;
+}
+
 exports.signUp = async (req, res, next) => {
     const busboy = Busboy({ headers: req.headers });
     let metadata = {};
     const fieldPromises = [];
+    let file = false;
 
     busboy.on('field',  (fieldname, val) => {
     fieldPromises.push(new Promise((resolve) => {  // uses promises as the events themselves are async
@@ -20,21 +41,26 @@ exports.signUp = async (req, res, next) => {
     });
 
 
-    busboy.on('file', async (fieldname, file, filename, encoding, mimetype) => {
-        await Promise.all(fieldPromises); 
-        const errors = validationResult(metadata);
+    busboy.on('file', async (fieldname, file, { filename, encoding, mimeType }) => {
+        await Promise.all(fieldPromises);
+        file = true;
+        req.body = metadata;
 
-        if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        const errors = validation({metadata});
+        if (errors.length) {
+            return res.status(400).json({ errors: errors });
         }
+
+   
         if (await User.userExists(metadata.email)) {
             return res.status(409).json({ msg: 'This email already in use' });
         }
         
-        const objectName = metadata.email  // edit this name
+        const objectName = metadata.email   // todo: edit the name
 
         try {
-            await objectStore.putObject('photos', objectName, file, mimetype);
+            // todo: ensure they are extensions of images
+            await objectStore.putObject('photos', objectName, file, mimeType);
         } catch (error) {
             console.error('Error uploading to MinIO:', error);
             return res.status(500).json({ message: 'Failed to upload picture', error: error.message });
@@ -43,9 +69,18 @@ exports.signUp = async (req, res, next) => {
 
     busboy.on('finish', async () => {
         try {
+            if (!file) {
+                const errors = validation({ metadata });
+                if (errors.length) {
+                    return res.status(400).json({ errors: errors });
+                }
+            if (await User.userExists(metadata.email)) {
+                 return res.status(409).json({ msg: 'This email already in use' });
+              }
+            }
             const hashedPassword = await argon2.hash(metadata.password);
             const user = new User({
-                userName: metadata.email,
+                userName: metadata.userName,
                 isPicExist: metadata.isPicExist,
                 friendsNo: 0,
                 bio: null,
@@ -56,11 +91,12 @@ exports.signUp = async (req, res, next) => {
             });
 
             const savedUser = await user.save();
-            genToken({ id: savedUser.id, email: savedUser.email });
+            const token = genToken({ id: savedUser[0].insertId });
 
             res.status(201).json({
                 message: 'User registered successfully',
-                user: savedUser
+                user: await User.getUserByEmail(metadata.email),
+                token: token
             });
         } catch (error) {
             console.error('Error during user registration:', error);

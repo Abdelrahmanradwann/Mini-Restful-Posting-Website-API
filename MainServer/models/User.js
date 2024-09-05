@@ -71,7 +71,6 @@ class User extends UserMetaData {
         let query = '';
         let params = [];
 
-        console.log(email)
         // Check if the email exists in the UserMetaData table
         if (email) {
             query = 'SELECT 1 FROM UserMetaData WHERE email = ? LIMIT 1';
@@ -89,9 +88,9 @@ class User extends UserMetaData {
         }
     }
     static async getUserByEmail(email) {
-        let slave2Connection = await createSlave2Connection();
-        try {
-            const [rows] = await slave2Connection.query(
+        let masterConnection = await createMasterConnection(); // needs to be master connection cuz it is async replication
+try {                                                           // and when signing up it won't find it in the slaves
+            const [rows] = await masterConnection.query(
                 `SELECT Users.*, UserMetaData.password 
                 FROM Users 
                 JOIN UserMetaData ON Users.id = UserMetaData.id 
@@ -99,7 +98,6 @@ class User extends UserMetaData {
                 LIMIT 1`,
                 [email]
             );
-
             if (rows.length > 0) {
                 return rows[0];
             } else {

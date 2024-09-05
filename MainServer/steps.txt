@@ -6,7 +6,7 @@ Check that everything needed was sent and not null
 
 Check that email does not exist
 
-Check the len if email and password and make sure they are in the right format
+Check the len of email and password and make sure they are in the right format
 Trim them if necessary 
 convert email to lowercase before saving
 
@@ -21,6 +21,10 @@ if pic exists
 if pic doesnot exist  then save directly to the DB
 
 Before saving create token for this user for authentication and encrypt the password
+
+NEW
+// execute the todos
+// need to make sure that the transaction of User and UserMetaData is atomic transactiom
 
 
 ---------------------------------------
