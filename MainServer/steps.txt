@@ -60,6 +60,9 @@ flow of creating post
     if video    
         store video in the object store buffer
         store meta data of the video in the brokers ( producer )
+        (maybe I will need to remove from the object store if needed)
+
+-----------------------------------------------
 
 
 

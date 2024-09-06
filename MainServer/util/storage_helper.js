@@ -1,5 +1,5 @@
 const Minio = require('minio');
-require('dotenv').config({path:'../.env'});
+// require('dotenv').config({path:'../.env'});
 
 
 exports.objectStore = new Minio.Client({

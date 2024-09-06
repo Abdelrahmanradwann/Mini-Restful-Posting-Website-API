@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken')
+// require('dotenv').config({path:'../.env'});
 
 exports.genToken = (payload) => {
     return jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: '1h' })
@@ -19,7 +20,6 @@ exports.validateToken = (req, res, next) => {
           next();     
       }
       catch (err) {
-        res.StatusCode = 400;
         throw new Error("error decoted token");
       }
 }

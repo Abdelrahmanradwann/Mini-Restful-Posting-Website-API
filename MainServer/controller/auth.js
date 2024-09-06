@@ -2,7 +2,7 @@ const { User } = require('../models/User');
 const { validationResult } = require('express-validator');
 const argon2 = require('argon2');
 const { genToken } = require('../util/token');
-const { objectStore } = require('../util/storage');
+const { objectStore } = require('../util/storage_helper');
 const validator = require('validator');
 
 const Busboy = require('busboy');
@@ -47,19 +47,26 @@ exports.signUp = async (req, res, next) => {
             return res.status(400).json({ errors: errors });
         }
 
-   
+        // console.log(metadata.email)
         if (await User.userExists({ email: metadata.email })) {
             return res.status(409).json({ msg: 'This email already in use' });
         }
-        const objectName = `${metadata.email}.${Date.now()}`   
+        const objectName = `${metadata.email}.${Date.now()}.${fieldname.split('.').pop()}`   
 
         try {
             if (mimeType.startsWith('image/')) {
-                await objectStore.putObject('photos', objectName, file, mimeType);
+                objectStore.putObject('photos', objectName, file, mimeType, (err, etag) => {
+                    if (err) {
+                        // if bucket does not exist or policies related to the bucket and so on
+                         console.log('Error uploading to MinIO:', err);
+                         return res.status(500).json({ message: 'Failed to upload picture', error: err.message })
+                     }
+                 });
             }
             else return res.status(400).json({ msg: 'File should be an image' });
         } catch (error) {
-            console.error('Error uploading to MinIO:', error);
+            // catches any broader error like server or network exceptions
+            console.error('Error uploading to MinIO :', error);
             return res.status(500).json({ message: 'Failed to upload picture', error: error.message });
         }
     });

@@ -99,7 +99,8 @@ class User extends UserMetaData {
     }
     static async getUserByEmail(email) {
         let masterConnection = await createMasterConnection(); // needs to be master connection cuz it is async replication
-try {                                                           // and when signing up it won't find it in the slaves
+        try {                                                  // and when signing up it won't find it in the slaves
+      
             const [rows] = await masterConnection.query(
                 `SELECT Users.*, UserMetaData.password 
                 FROM Users 

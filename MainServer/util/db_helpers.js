@@ -1,8 +1,5 @@
 const mysql = require('mysql2/promise'); 
-
-
-
-
+const { producer } = require('./kafka_helper');
 
 let masterConnection = null;
 let slave1Connection = null;
@@ -111,6 +108,9 @@ process.on('SIGINT', async () => {
         await slave2Connection.end();
         console.log('Slave2 connection closed');
     }
+
+     console.log('Shutting down producer...');
+    await producer.disconnect();
 
     process.exit(0);
 });
