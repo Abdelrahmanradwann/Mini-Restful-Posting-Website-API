@@ -69,16 +69,23 @@ class User extends UserMetaData {
         }
     }
      
-    static async userExists(email) {
+    static async userExists({ email = null, id = null }) {
         let slave1Connection = await createSlave1Connection();
         let query = '';
         let params = [];
 
-        // Check if the email exists in the UserMetaData table
+        console.log("id " + id)
+        console.log("email "+ email)
+        // Check if the email exists in the UserMetaDat a table
         if (email) {
             query = 'SELECT 1 FROM UserMetaData WHERE email = ? LIMIT 1';
             params = [email];
-        } else {
+        }
+        else if (id) {
+            query = 'SELECT 1 FROM UserMetaData WHERE id = ? LIMIT 1';
+            params = [id];
+        }
+        else {
             throw new Error('No valid parameter provided to check user existence');
         }
 

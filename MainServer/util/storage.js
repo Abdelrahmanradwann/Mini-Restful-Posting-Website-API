@@ -9,3 +9,11 @@ exports.objectStore = new Minio.Client({
     accessKey: process.env.MINIO_USER,
     secretKey: process.env.MINIO_PASSWORD
 });
+
+exports.bufferStorage = new Minio.Client({
+    endPoint: 'minio-tmp', 
+    port: 9000, 
+    useSSL: false,
+    accessKey: process.env.MINIO_USER,
+    secretKey: process.env.MINIO_PASSWORD
+});

@@ -4,6 +4,7 @@ require('dotenv').config();
 // const kafkaTest = require('./routes/Kafka-test/producer');
 // const kafkaTest2  = require('./routes/Kafka-test/consumer');
 const authRoute = require('./routes/auth');
+const postRoute = require('./routes/posts');
 
 
 
@@ -11,7 +12,9 @@ const authRoute = require('./routes/auth');
 app.use(express.json());
 
 
-app.use(authRoute);
+app.use('/api', authRoute);
+app.use('/api', postRoute);
+
 
 app.use((err,req, res, next) => {
     res.status(500).json({

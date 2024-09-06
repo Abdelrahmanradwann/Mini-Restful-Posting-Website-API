@@ -42,3 +42,24 @@ return the token attached with the user
 
 ---------------------------------------
 
+Note -> Id for posts will be userid + created at date
+        Id for profile pic will be user emails
+        
+
+create post 
+
+check that whether there is a content or media is true ( error if both pf them are empty )
+check for existence if userid
+created at for the current time
+num comment = num likes = 0
+
+flow of creating post
+    if no video
+        will upload the image ( if exists ) to the photo bucket and save posts info into DB
+    
+    if video    
+        store video in the object store buffer
+        store meta data of the video in the brokers ( producer )
+
+
+

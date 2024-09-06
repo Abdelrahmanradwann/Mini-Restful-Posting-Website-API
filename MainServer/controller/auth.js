@@ -32,7 +32,6 @@ function validation({ metadata }) {
 exports.signUp = async (req, res, next) => {
     const busboy = Busboy({ headers: req.headers });
     let metadata = {};
-    const fieldPromises = [];
     let isFile = false;
 
     busboy.on('field',  (fieldname, val) => {
@@ -49,7 +48,7 @@ exports.signUp = async (req, res, next) => {
         }
 
    
-        if (await User.userExists(metadata.email)) {
+        if (await User.userExists({ email: metadata.email })) {
             return res.status(409).json({ msg: 'This email already in use' });
         }
         const objectName = `${metadata.email}.${Date.now()}`   

@@ -8,7 +8,7 @@ let masterConnection = null;
 let slave1Connection = null;
 let slave2Connection = null;
 
-const connectionIdleTimeout = 120000; // Timeout duration in milliseconds (e.g., 120 seconds)
+const connectionIdleTimeout = 120000; // Timeout duration in milliseconds 120 seconds
 let masterLastUsed = null;
 let slave1LastUsed = null;
 let slave2LastUsed = null;
@@ -66,21 +66,18 @@ async function createSlave2Connection() {
 function checkIdleConnections() {
     const now = Date.now();
     
-    // Close master connection if idle
     if (masterConnection && (now - masterLastUsed) > connectionIdleTimeout) {
         masterConnection.end();
-        masterConnection = null; // Clear reference
+        masterConnection = null; 
         console.log('Master connection closed due to inactivity');
     }
     
-    // Close slave1 connection if idle
     if (slave1Connection && (now - slave1LastUsed) > connectionIdleTimeout) {
         slave1Connection.end();
         slave1Connection = null;
         console.log('Slave1 connection closed due to inactivity');
     }
 
-    // Close slave2 connection if idle
     if (slave2Connection && (now - slave2LastUsed) > connectionIdleTimeout) {
         slave2Connection.end();
         slave2Connection = null;
@@ -88,10 +85,8 @@ function checkIdleConnections() {
     }
 }
 
-// Set up a timer to check for idle connections every minute
-setInterval(checkIdleConnections, 60000); // Check every 60 seconds
+setInterval(checkIdleConnections, 120000); // Check every 120 seconds
 
-// Export the connection functions
 module.exports = {
     createMasterConnection,
     createSlave1Connection,
