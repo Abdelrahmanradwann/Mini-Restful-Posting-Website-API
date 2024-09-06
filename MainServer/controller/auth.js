@@ -3,6 +3,7 @@ const { validationResult } = require('express-validator');
 const argon2 = require('argon2');
 const { genToken } = require('../util/token');
 const { objectStore } = require('../util/storage');
+const validator = require('validator');
 
 const Busboy = require('busboy');
 
@@ -10,19 +11,20 @@ const Busboy = require('busboy');
 
 function validation({ metadata }) {
         let errors = [];
-        if (!metadata.email) {
-            errors.push('Please enter a valid email address');
-    
-        }
-        if (!metadata.userName) {
-            errors.push('User name must be given');
-        }
-        if (!metadata.password) {
-            errors.push('Password must be between 5 to 35 characters');
-        }
-            
-        if (!metadata.isPicExist) {
-            errors.push('Determine whether you will upload profike pic or not');
+    if (!metadata.email) {
+        errors.push('Please enter a valid email address');
+    }
+    if (metadata.userName.length < 1 || metadata.userName.length > 30) {
+        errors.push('Username must be between 3 to 30 characters');
+    }
+    if (!validator.isEmail(metadata.email)) {
+        errors.push('Please enter a valid email address');
+    }
+    if (!metadata.password || metadata.password.length < 5 || metadata.password.length > 35) {
+        errors.push('Password must be between 5 to 35 characters');
+    }
+    if (typeof metadata.isPicExist === 'undefined') {
+        errors.push('Please specify whether a profile picture will be uploaded or not');
     }
     return errors;
 }
@@ -31,20 +33,15 @@ exports.signUp = async (req, res, next) => {
     const busboy = Busboy({ headers: req.headers });
     let metadata = {};
     const fieldPromises = [];
-    let file = false;
+    let isFile = false;
 
     busboy.on('field',  (fieldname, val) => {
-    fieldPromises.push(new Promise((resolve) => {  // uses promises as the events themselves are async
-        metadata[fieldname] = val;
-        resolve();
-        }));
+            metadata[fieldname] = val;
     });
 
 
     busboy.on('file', async (fieldname, file, { filename, encoding, mimeType }) => {
-        await Promise.all(fieldPromises);
-        file = true;
-        req.body = metadata;
+        isFile = true;
 
         const errors = validation({metadata});
         if (errors.length) {
@@ -55,12 +52,13 @@ exports.signUp = async (req, res, next) => {
         if (await User.userExists(metadata.email)) {
             return res.status(409).json({ msg: 'This email already in use' });
         }
-        
-        const objectName = metadata.email   // todo: edit the name
+        const objectName = `${metadata.email}.${Date.now()}`   
 
         try {
-            // todo: ensure they are extensions of images
-            await objectStore.putObject('photos', objectName, file, mimeType);
+            if (mimeType.startsWith('image/')) {
+                await objectStore.putObject('photos', objectName, file, mimeType);
+            }
+            else return res.status(400).json({ msg: 'File should be an image' });
         } catch (error) {
             console.error('Error uploading to MinIO:', error);
             return res.status(500).json({ message: 'Failed to upload picture', error: error.message });
@@ -69,7 +67,7 @@ exports.signUp = async (req, res, next) => {
 
     busboy.on('finish', async () => {
         try {
-            if (!file) {
+            if (!isFile) {
                 const errors = validation({ metadata });
                 if (errors.length) {
                     return res.status(400).json({ errors: errors });
@@ -99,7 +97,16 @@ exports.signUp = async (req, res, next) => {
                 token: token
             });
         } catch (error) {
+
             console.error('Error during user registration:', error);
+
+            objectStore.removeObject('photos', `${metadata.email}.${Date.now()}`, function (err){
+                 if (err) {
+                    return console.log('Error removing object:', err);
+                    }
+                 console.log('Object removed successfully.');
+            });
+
             res.status(500).json({
                 message: 'Failed to register user',
                 error: error.message

@@ -46,6 +46,7 @@ class User extends UserMetaData {
     async save() {
         let masterConnection = await createMasterConnection();
 
+        await masterConnection.beginTransaction();
         try {
             const result = await masterConnection.query(
                 `INSERT INTO Users (userName, isPicExist, friendsNo, bio, numFollowers, numFollowing)
@@ -59,9 +60,11 @@ class User extends UserMetaData {
             if (!metaDataSaveResult) {
                 throw new Error('Failed to save UserMetaData');
             }
+            await masterConnection.commit()
             return result;
         } catch (error) {
-            console.error('Error saving user:', error.message);
+            await masterConnection.rollback();
+            console.error('Error saving user or user metadata. Transaction rolled back:', error.message);
             return false;
         }
     }
