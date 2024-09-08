@@ -1,0 +1,74 @@
+version: '3.8'
+
+
+services:
+  consumer1:
+    build: .
+    container_name: c1
+    environment:
+      KAFKA_TOPIC: 'Photos'
+      TOPIC_PARTITION: '0'
+      GROUPID: '1'
+
+    networks:
+      - encoding-service
+      - event-streaming
+      - ObjectStore
+      - database-network
+  
+  consumer2:
+    build: .
+    container_name: c2
+    environment:
+      KAFKA_TOPIC: 'Photos'
+      TOPIC_PARTITION: '1'
+      GROUPID: '1'
+
+    networks:
+      - encoding-service
+      - event-streaming
+      - ObjectStore
+      - database-network
+
+  consumer3:
+    build: .
+    container_name: c3
+    environment:
+      KAFKA_TOPIC: 'Videos'
+      TOPIC_PARTITION: '0'
+      GROUPID: '2'
+
+
+    networks:
+      - encoding-service
+      - event-streaming
+      - ObjectStore
+      - database-network
+
+  consumer4:
+    build: .
+    container_name: c4
+    environment:
+      KAFKA_TOPIC: 'Videos'
+      TOPIC_PARTITION: '1'
+      GROUPID: '2'
+
+    networks:
+      - encoding-service
+      - event-streaming
+      - ObjectStore
+      - database-network
+
+networks:
+  encoding-service:
+    external: false
+    name: encoding-service   
+  event-streaming:
+    name: event-streaming
+    external: false
+  ObjectStore:
+    name: ObjectStore
+    external: false
+  database-network:
+    external: false
+    name: database-network

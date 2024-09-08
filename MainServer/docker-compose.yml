@@ -17,6 +17,7 @@ services:
       - event-streaming
       - database-network
       - ObjectStore
+      - encoding-service
 
 
 
@@ -35,6 +36,7 @@ services:
       - event-streaming
       - database-network
       - ObjectStore
+      - encoding-service
 
 networks:
   LoadBalancerNetwork:
@@ -51,5 +53,8 @@ networks:
   ObjectStore:
     name: ObjectStore
     external: false
+  encoding-service:
+    name: encoding-service
+    external: true
 
   

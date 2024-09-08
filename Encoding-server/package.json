@@ -1,0 +1,23 @@
+{
+  "name": "encoding-server",
+  "version": "1.0.0",
+  "main": "consumer.js",
+  "scripts": {
+    "start": "nodemon --legacy-watch consumer.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@ffmpeg-installer/ffmpeg": "^1.1.0",
+    "@ffprobe-installer/ffprobe": "^2.1.2",
+    "fluent-ffmpeg": "^2.1.3",
+    "kafkajs": "^2.2.4",
+    "minio": "^8.0.1",
+    "mysql2": "^3.11.0",
+    "stream": "^0.0.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  },
+  "description": ""
+}

@@ -21,7 +21,8 @@ exports.createPost = (req, res) => {
     console.log("here")
     const metadata = {};
     let isFile = false;
-    const date = new Date();
+    let date = new Date();
+    date = date.toISOString().slice(0, 19).replace('T', ' '); 
     busboy.on('field', (fieldname, val) => {
         metadata[fieldname] = val;
     })
