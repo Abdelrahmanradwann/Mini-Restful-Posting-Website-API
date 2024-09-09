@@ -65,6 +65,29 @@ flow of creating post
 -----------------------------------------------
 
 
+forget password
+
+1) send email
+2) check if email exists in DB
+3) send verification code and update it and update the time
+4) send him an email for reset his pw
+
+-----------------------
+
+reset password
+
+check for user with verification code and time < the time of code
+
+if exists then update the password and hash it
+and reset the vcode and time to undefined
+
+-------------------------
+
+
+
+
+
+
 
 
 

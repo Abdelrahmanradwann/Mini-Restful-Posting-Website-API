@@ -4,8 +4,11 @@ const argon2 = require('argon2');
 const { genToken } = require('../util/token');
 const { objectStore } = require('../util/storage_helper');
 const validator = require('validator');
+const { v4: uuidv4 } = require('uuid');
 
 const Busboy = require('busboy');
+const { sendHtmlEmail } = require('../util/helper');
+
 
 
 
@@ -78,9 +81,9 @@ exports.signUp = async (req, res, next) => {
                 if (errors.length) {
                     return res.status(400).json({ errors: errors });
                 }
-            if (await User.userExists(metadata.email)) {
-                 return res.status(409).json({ msg: 'This email already in use' });
-              }
+                if (await User.userExists({ email: metadata.email })) {
+                return res.status(409).json({ msg: 'This email already in use' });
+            }
             }
             const hashedPassword = await argon2.hash(metadata.password);
             const user = new User({
@@ -145,5 +148,47 @@ exports.logIn = async (req, res, next) => {
         token: token,
         user: user
     });
+}
+
+
+exports.forgetPassword = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).send(errors);
+    }
+    const { email } = req.body;
+    const user = await User.getUserByEmail(email);
+    if (!user) {
+        return res.status(404).json({ msg: 'No user found with this email' });
+    }
+
+    console.log(user)
+    const randomFourDigitNumber = Math.floor(1000 + Math.random() * 9000);
+    const timeOfCode = new Date();
+    const verificationCode = randomFourDigitNumber;
+    await user.update({ verificationCode: verificationCode, timeOfCode: timeOfCode }, { email: email });
+    await sendHtmlEmail(email, 'Reset Password', `<p>Your verification code is: <strong>${verificationCode}</strong></p>`);
+    return res.status(200).json({ msg: 'Email sent successfully' });
+}
+
+exports.resetPassword = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).send(errors);
+    }
+    const { email, verificationCode, password } = req.body;
+    const user = await User.getUserByEmail(email);
+    const verifications = await user.verification(email)
+    if (verifications.verificationCode != verificationCode) {
+        return res.status(400).json({ msg: 'Wong verification code' });
+    }
+    if (new Date(verifications.timeOfCode).getTime() > Date.now()) {
+        return res.status(400).json({ msg: 'Verification code expired' })
+    }
+    const hashedPassword = await argon2.hash(password);
+    await user.update({ password: hashedPassword, verificationCode:null ,timeOfCode:null }, { email: email });
+    await sendHtmlEmail(email, 'Password Changed', `<p>Your password has been changed <strong>successfully</strong>`);
+
+    return res.status(200).json({ msg: 'Password changed successfully' });
 }
 

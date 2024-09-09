@@ -3,8 +3,8 @@ const { createMasterConnection, createSlave1Connection, createSlave2Connection }
 
 
 
- class UserMetaData {
-     constructor( email, password, verificationCode = null, timeOfCode = null, confirmation = null) {
+class UserMetaData {
+    constructor(email, password, verificationCode = null, timeOfCode = null, confirmation = null) {
         this.email = email;
         this.password = password;
         this.verificationCode = verificationCode;
@@ -12,8 +12,8 @@ const { createMasterConnection, createSlave1Connection, createSlave2Connection }
         this.confirmation = confirmation;
     }
 
-     async save() {
-         let masterConnection = await createMasterConnection();
+    async save() {
+        let masterConnection = await createMasterConnection();
 
 
         try {
@@ -29,7 +29,52 @@ const { createMasterConnection, createSlave1Connection, createSlave2Connection }
             return false;
         }
     }
+     
+    async update(fieldsToUpdate, conditions) {
+        let masterConnection = await createMasterConnection();
+
+        try {
+            // Create dynamic SQL query based on the fields to update
+            const setClause = Object.keys(fieldsToUpdate)
+                .map(field => `${field} = ?`)
+                .join(', ');
+
+            const values = Object.values(fieldsToUpdate);
+            
+            const whereClause = Object.keys(conditions)
+                .map(condition => `${condition} = ?`)
+                .join(' AND ');
+
+            const whereValues = Object.values(conditions);
+
+            const query = `UPDATE UserMetaData SET ${setClause} WHERE ${whereClause}`;
+
+            const result = await masterConnection.query(query, [...values, ...whereValues]);
+
+            return result;
+
+        } catch (err) {
+            throw new Error('Error while updating user data: ' + err.message);
+        }
+    }
+
+    async verification(email) {
+        let masterConnection = await createMasterConnection();
+
+        try {
+            const result = await masterConnection.query(
+                `SELECT verificationCode, timeOfCode FROM UserMetaData WHERE email = ? LIMIT 1`,
+                [email]
+            );
+            console.log('UserMetaData: ', result);
+            return result[0][0];
+        } catch (err) {
+            throw new Error(err);
+        }
+    }
+
 }
+
 
 class User extends UserMetaData {
     constructor({ userName, isPicExist, numFollowers, numFollowing,
@@ -102,7 +147,7 @@ class User extends UserMetaData {
         try {                                                  // and when signing up it won't find it in the slaves
       
             const [rows] = await masterConnection.query(
-                `SELECT Users.*, UserMetaData.password 
+                `SELECT Users.*, UserMetaData.password
                 FROM Users 
                 JOIN UserMetaData ON Users.id = UserMetaData.id 
                 WHERE UserMetaData.email = ? 
@@ -110,7 +155,7 @@ class User extends UserMetaData {
                 [email]
             );
             if (rows.length > 0) {
-                return rows[0];
+                return new User(rows[0]);
             } else {
                 return null;
             }

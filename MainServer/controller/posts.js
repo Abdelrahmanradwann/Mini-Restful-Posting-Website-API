@@ -50,7 +50,7 @@ exports.createPost = (req, res) => {
                     return res.status(500).json({ message: 'Failed to upload media', error: err.message });
                 }
                 await producer.connect();
-
+                console.log("hereeee")
                 await producer.send({
                     topic: topic,
 

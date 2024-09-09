@@ -12,7 +12,7 @@ router.post('/sign-up',
             .withMessage('Password must be at least 5 characters long'), 
         check('isPicExist').not().isEmpty().withMessage('Please determine whether you want to add PP or not'),
     ]
-    , userController.signUp);
+    ,   userController.signUp);
 
 router.post('/log-in',
     [
@@ -20,6 +20,23 @@ router.post('/log-in',
         check('password').trim().not().isEmpty().withMessage('Please enter a password'),
     ]
     , userController.logIn);
+
+router.post('/forget-password',
+    [
+        check('email').trim().toLowerCase().isEmail().withMessage('Please enter a valid email address'),
+    ]
+    ,   userController.forgetPassword);
+
+router.post('/reset-password',
+    [
+        check('password').trim().not().isEmpty().withMessage('Please enter a password'),
+        check('password').isLength({ min: 5, max: 15 })
+            .withMessage('Password must be at least 5 characters long'),
+        check('verificationCode').not().isEmpty().withMessage('Please enter a verification code'),
+
+    ]
+    ,  userController.resetPassword)
+
 
 
 
