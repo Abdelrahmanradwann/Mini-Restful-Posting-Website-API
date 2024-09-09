@@ -6,5 +6,8 @@ const { validateToken } = require('../util/token');
 
 router.post('/upload',validateToken,postController.createPost)
 
+router.get('/posts', validateToken, postController.getPosts)
+
+router.get('/media/:bucket/:objectName', validateToken, postController.getMedia)
 
 module.exports = router;

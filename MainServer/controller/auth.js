@@ -99,10 +99,10 @@ exports.signUp = async (req, res, next) => {
 
             const savedUser = await user.save();
             const token = genToken({ id: savedUser[0].insertId });
-
+            
             res.status(201).json({
                 message: 'User registered successfully',
-                user: await User.getUserByEmail(metadata.email),
+                user: await User.getUserByEmail(metadata.email).user,
                 token: token
             });
         } catch (error) {
@@ -133,16 +133,16 @@ exports.logIn = async (req, res, next) => {
         return res.status(400).json({ errors: errors.array() });
     }
 
-    const user = await User.getUserByEmail(req.body.email);
+    const { user,id } = await User.getUserByEmail(req.body.email);
     if (!user) {
         return res.status(404).json({ msg: 'Email is not correct' });
     }
-
     const passwordIsValid = await argon2.verify(user.password, req.body.password);
     if (!passwordIsValid) {
         return res.status(401).json({ msg: 'Password is not correct' });
     }
-    const token = genToken({ id: user.id, email: user.email });
+
+    const token = genToken({ id: id, email: req.body.email });
     res.status(200).json({
         message: 'User logged in successfully',
         token: token,
@@ -157,7 +157,7 @@ exports.forgetPassword = async (req, res) => {
         return res.status(400).send(errors);
     }
     const { email } = req.body;
-    const user = await User.getUserByEmail(email);
+    const { user } = await User.getUserByEmail(email);
     if (!user) {
         return res.status(404).json({ msg: 'No user found with this email' });
     }
@@ -177,7 +177,7 @@ exports.resetPassword = async (req, res) => {
         return res.status(400).send(errors);
     }
     const { email, verificationCode, password } = req.body;
-    const user = await User.getUserByEmail(email);
+    const { user } = await User.getUserByEmail(email);
     const verifications = await user.verification(email)
     if (verifications.verificationCode != verificationCode) {
         return res.status(400).json({ msg: 'Wong verification code' });

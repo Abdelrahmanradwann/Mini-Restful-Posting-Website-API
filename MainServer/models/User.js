@@ -147,15 +147,16 @@ class User extends UserMetaData {
         try {                                                  // and when signing up it won't find it in the slaves
       
             const [rows] = await masterConnection.query(
-                `SELECT Users.*, UserMetaData.password
+                `SELECT Users.id, Users.*, UserMetaData.password
                 FROM Users 
                 JOIN UserMetaData ON Users.id = UserMetaData.id 
                 WHERE UserMetaData.email = ? 
                 LIMIT 1`,
                 [email]
             );
+            console.log(rows)
             if (rows.length > 0) {
-                return new User(rows[0]);
+                return {user: new User(rows[0]), id:rows[0].id}
             } else {
                 return null;
             }

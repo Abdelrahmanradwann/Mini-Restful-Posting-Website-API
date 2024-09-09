@@ -35,6 +35,7 @@ async function consume() {
 
             console.log(`RVD Msg ${message.value} on partition ${partition}`)
             const { objectName, userId, createdAt, media, content } = JSON.parse(message.value.toString());
+            console.log('mediaaaaaa '+ media)
             const bucket = media == 'photo' ? 'photos' : 'videos';
             try {
                 let object = await bufferStorage.getObject(bucket, objectName)
@@ -81,9 +82,11 @@ async function consume() {
                     console.log('Successfully removed the object buffer:', objectName);
                 });
 
+                            console.log('mediaaaaaa '+ media)
+
                 let post = new Post({
                     content: content,
-                    media: 1,
+                    media: media=='photo' ? 1 : 2,
                     userId: userId,
                     createdAt: createdAt,
                     numComments: 0,
@@ -95,7 +98,14 @@ async function consume() {
                         msg: 'Failed to create post'
                     })
                 }
-                console.log('Process is done successfully');
+                console.log({
+                    message: 'Media uploaded successfully',
+                    objectName: objectName,
+                    userId: userId,
+                    createdAt: createdAt,
+                    media: media.startsWith('image/') ? 'photo' : 'video',
+                    content: content
+                });
 
 
             } catch (err) {

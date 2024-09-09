@@ -3,8 +3,10 @@ const { Post } = require('../models/Post');
 const { User } = require('../models/User');
 const { producer } = require('../util/kafka_helper');
 const Busboy = require('busboy');
+const { objectStore } = require('../util/storage_helper.js')
 
 
+const limit = 5;
 function validation(metadata) {
     const errors = [];
     if (!metadata.media) {
@@ -27,6 +29,7 @@ exports.createPost = (req, res) => {
         metadata[fieldname] = val;
     })
     
+    console.log(req.current.id)
     busboy.on('file', async (fieldname, file, { filename,mimeType }) => {
         const errors = validation(metadata);
         if (errors.length) {
@@ -68,12 +71,7 @@ exports.createPost = (req, res) => {
             });
             
             return res.status(201).json({
-                message: 'Media uploaded successfully',
-                objectName: objectName,
-                userId: req.current.id,
-                createdAt: date,
-                media: mimeType.startsWith('image/') ? 'photo' : 'video',
-                content: metadata.content
+                 msg:'Post added to the minio'
             })
         
     
@@ -122,3 +120,82 @@ exports.createPost = (req, res) => {
     req.pipe(busboy)
 
 }
+
+exports.getPosts = async (req, res) => {
+    console.log('User id is ' + req.current.id);
+    const { page } = req.query;
+    const limit = 5;  // You can adjust this as needed
+    const pageNum = page || 1;
+    
+    try {
+        const rows = await Post.getPosts(pageNum, limit);
+
+        // Attach a media URL for each post if media exists
+        const postsWithMediaUrls = rows.map((post) => {
+            if (post.media == 1) {
+                const createdAtDate = new Date(post.createdAt);
+                const createdAt = createdAtDate.toISOString().slice(0, 19).replace('T', '_') // Replace space with underscore and colon with dash
+                const objectName = `${post.userId}.${createdAt}.png`; // Example media name
+                
+                // Add mediaUrl field pointing to your new endpoint
+                post.mediaUrl = `/media/${objectName}`;
+            }
+            else if (post.media == 2) {
+                const createdAtDate = new Date(post.createdAt);
+                const createdAt = createdAtDate.toISOString().slice(0, 19).replace('T', '_')// Same for videos
+                const objectName = `${post.userId}.${createdAt}.webm`; // Example media name
+
+                post.mediaUrl = `/media/${objectName}`;
+
+            }
+            return post;
+        });
+
+        res.status(200).json(postsWithMediaUrls); // Return the posts with media URLs
+    } catch (error) {
+        console.error('Error fetching posts:', error.message);
+        res.status(500).send(error.message);
+    }
+};
+
+
+
+exports.getMedia = async (req, res) => {
+    let { bucket, objectName } = req.params;  // folder can be 'photos' or 'videos'
+    objectName = objectName.replace(/_/g, ' ');
+    console.log(bucket)
+    console.log(objectName)
+    
+    try {
+        const statObject = await objectStore.statObject(bucket, objectName);
+        const fileSize = statObject.size;
+        let ext = 'png';
+        let folder = 'image';
+        if (bucket == 'videos') {
+            ext = 'webm';
+            folder = 'video';
+        }
+ 
+        const ContentType = `${folder}/${ext}`;  // Assuming the media type is PNG
+
+        res.writeHead(200, {
+            'Content-Length': fileSize,
+            'Content-Type': ContentType,
+        });
+
+        // Stream the media
+        objectStore.getObject(bucket, objectName, (err, stream) => {
+            if (err) {
+                return res.status(404).send("Media not found");
+            }
+            stream.pipe(res);
+            stream.on('end', () => {
+                console.log("Media has been successfully sent.");
+            });
+        });
+
+    } catch (err) {
+        res.status(500).send("Error retrieving media: " + err.message);
+    }
+}
+

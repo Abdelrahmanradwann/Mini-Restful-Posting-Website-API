@@ -1,6 +1,5 @@
 const { createMasterConnection, createSlave1Connection, createSlave2Connection } = require('../util/db_helpers.js');
 
-
 class Post {
     constructor({ content = null, media, userId, createdAt, numComments = 0, numLikes = 0 }) {
         this.content = content
@@ -27,6 +26,23 @@ class Post {
             return false;
         }
     }
+
+  static async getPosts(page = 1, limit = 5) {
+    let slave1Connection = await createSlave1Connection();
+
+    const offset = (page - 1) * limit;
+    const query = `SELECT userId, createdAt, content, media, numComments, numLikes FROM Posts ORDER BY createdAt DESC LIMIT ?, ?`;
+    const params = [offset, limit];
+
+      try {
+          const [rows] = await slave1Connection.query(query, params);
+        return rows
+        } catch (error) {
+            console.error('Error fetching posts:', error.message);
+            throw error;
+        }
+    }
+
     
 
 }
