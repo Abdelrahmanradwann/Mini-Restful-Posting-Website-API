@@ -17,3 +17,4 @@ exports.bufferStorage = new Minio.Client({
     accessKey: process.env.MINIO_USER,
     secretKey: process.env.MINIO_PASSWORD
 });
+

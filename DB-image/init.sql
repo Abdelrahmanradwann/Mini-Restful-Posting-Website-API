@@ -12,7 +12,7 @@ CREATE TABLE `LikesOfComment`(
 CREATE TABLE `Posts` (
     `id` BIGINT  NOT NULL AUTO_INCREMENT,
     `content` TEXT NULL,
-    `media` BOOLEAN NOT NULL,
+    `media` SMALLINT NOT NULL,
     `userId` BIGINT NOT NULL,   
     `createdAt` DATETIME NOT NULL,
     `numComments` BIGINT NULL,
@@ -52,7 +52,6 @@ CREATE TABLE `Comments`(
     `numLikes` BIGINT NOT NULL,
     `text` TEXT NOT NULL,
     `createdAt` DATETIME NOT NULL,
-    `media` BOOLEAN NOT NULL,
     PRIMARY KEY(`id`)
 );
 

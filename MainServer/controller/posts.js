@@ -1,9 +1,12 @@
 const { bufferStorage } = require('../util/storage_helper');
 const { Post } = require('../models/Post');
 const { User } = require('../models/User');
+const { Comment } = require('../models/Comment')
 const { producer } = require('../util/kafka_helper');
 const Busboy = require('busboy');
 const { objectStore } = require('../util/storage_helper.js')
+const { validationResult } = require('express-validator');
+
 
 
 const limit = 5;
@@ -135,17 +138,16 @@ exports.getPosts = async (req, res) => {
             if (post.media == 1) {
                 const createdAtDate = new Date(post.createdAt);
                 const createdAt = createdAtDate.toISOString().slice(0, 19).replace('T', '_') // Replace space with underscore and colon with dash
-                const objectName = `${post.userId}.${createdAt}.png`; // Example media name
+                const objectName = `${post.userId}.${createdAt}.png`; 
                 
-                // Add mediaUrl field pointing to your new endpoint
-                post.mediaUrl = `/media/${objectName}`;
+                post.mediaUrl = `/media/photos/${objectName}`;
             }
             else if (post.media == 2) {
                 const createdAtDate = new Date(post.createdAt);
-                const createdAt = createdAtDate.toISOString().slice(0, 19).replace('T', '_')// Same for videos
-                const objectName = `${post.userId}.${createdAt}.webm`; // Example media name
+                const createdAt = createdAtDate.toISOString().slice(0, 19).replace('T', '_')
+                const objectName = `${post.userId}.${createdAt}.webm`; 
 
-                post.mediaUrl = `/media/${objectName}`;
+                post.mediaUrl = `/media/videos/${objectName}`;
 
             }
             return post;
@@ -163,8 +165,7 @@ exports.getPosts = async (req, res) => {
 exports.getMedia = async (req, res) => {
     let { bucket, objectName } = req.params;  // folder can be 'photos' or 'videos'
     objectName = objectName.replace(/_/g, ' ');
-    console.log(bucket)
-    console.log(objectName)
+
     
     try {
         const statObject = await objectStore.statObject(bucket, objectName);
@@ -176,9 +177,9 @@ exports.getMedia = async (req, res) => {
             folder = 'video';
         }
  
-        const ContentType = `${folder}/${ext}`;  // Assuming the media type is PNG
+        const ContentType = `${folder}/${ext}`; 
 
-        res.writeHead(200, {
+        res.writeHead(200, {     // not needed but prefered
             'Content-Length': fileSize,
             'Content-Type': ContentType,
         });
@@ -188,14 +189,130 @@ exports.getMedia = async (req, res) => {
             if (err) {
                 return res.status(404).send("Media not found");
             }
-            stream.pipe(res);
+            stream.pipe(res); // Pipe the media stream to the response in chunks
             stream.on('end', () => {
                 console.log("Media has been successfully sent.");
             });
         });
+   
 
     } catch (err) {
         res.status(500).send("Error retrieving media: " + err.message);
     }
 }
+
+
+exports.addLike = (req, res) => {
+    let errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).send(errors);
+    }
+    const { postId } = req.body;
+    Post.likePost(postId,req.current.id).then(result => {
+        res.status(200).json({
+            msg: 'Like added successfully',
+            result: result
+        })
+    }).catch(err => {
+        res.status(500).json({
+            msg: 'Failed to add like',
+            error: err.message
+        })
+    });
+}
+
+exports.removeLike = (req, res) => {
+    let errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).send(errors);
+    }
+    const { postId } = req.body;
+    Post.removeLike(postId,req.current.id).then(result => {
+        res.status(200).json({
+            msg: 'Like removed successfully',
+            result: result
+        })
+    }).catch(err => {
+        res.status(500).json({
+            msg: 'Failed to remove like',
+            error: err.message
+        })
+    });
+}
+
+exports.addComment = (req, res) => {
+  
+    let errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).send(errors);
+    }
+    const { postId, text } = req.body;
+
+    let comment = new Comment({
+        userId: req.current.id,
+        postId: postId,
+        numComments: 0,
+        numLikes: 0,
+        text: text,
+        createdAt: new Date().toISOString().slice(0, 19).replace('T', ' ')
+    });
+
+    comment.create().then(result => {
+        res.status(200).json({
+            msg: 'Comment added successfully',
+            result: result
+        })
+    }).catch(err => {
+        res.status(500).json({
+            msg: 'Failed to add comment',
+            error: err.message
+        })
+    })
+
+}
+
+
+exports.deleteComment = (req, res) => {
+    let errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).send(errors);
+    }
+    const { commentId, postId } = req.body;
+    Comment.removeComment(commentId,postId).then(result => {
+        res.status(200).json({
+            msg: 'Comment removed successfully',
+            result: result
+        })
+    }).catch(err => {
+        res.status(500).json({
+            msg: 'Failed to remove comment',
+            error: err.message
+        })
+    })
+
+}
+
+
+exports.addLikeComment = (req, res) => {
+    let errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).send(errors);
+    }
+    const { commentId } = req.body;
+    Comment.likeComment(commentId, req.current.id).then(result => {
+        res.status(200).json({
+            msg: 'Like added successfully',
+            result: result
+        })
+    }).catch(err => {
+          res.status(500).json({
+            msg: 'Failed to like comment',
+            error: err.message
+        })
+    })
+
+}
+
+
+
 
