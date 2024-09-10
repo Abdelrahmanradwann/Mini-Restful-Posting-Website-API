@@ -27,8 +27,20 @@ class LikesOfComment{
         const masterConnection = await createMasterConnection();
 
         try {
-            console.log('hereee')
             await masterConnection.query(`INSERT INTO LikesOfComment VALUES (?,?)`, [commendId, userId]);
+            return
+
+        } catch (err) {
+            throw err;
+        }
+    }
+
+     static async removeLikeComment(commendId, userId) {
+        const masterConnection = await createMasterConnection();
+
+        try {
+            console.log('hereee')
+            await masterConnection.query(`DELETE FROM LikesOfComment WHERE commentId = ? AND userId = ?`, [commendId, userId]);
             return
 
         } catch (err) {

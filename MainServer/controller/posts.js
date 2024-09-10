@@ -314,5 +314,21 @@ exports.addLikeComment = (req, res) => {
 }
 
 
+exports.removeLikeComment = (req, res) => {
+    let errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).send(errors);
+    }
+    const { commentId } = req.body;
+    Comment.removeLikeComment(commentId, req.current.id).then(result => {
+        res.status(200).json({
+            msg: 'Like removed successfully',
+            result: result
+        })
+    }).catch(err => {
+        return res.status(500).send(err.message);
+    })  
+}
+
 
 

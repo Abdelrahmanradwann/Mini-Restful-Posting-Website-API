@@ -45,11 +45,19 @@ router.delete('/comment', validateToken,
     ],
     postController.deleteComment)
 
+
 router.patch('/like-comment', validateToken,
     [
         check('commentId').not().isEmpty().withMessage('Please enter a comment id'),   
     ],
     postController.addLikeComment
+)
+
+router.delete('/like-comment', validateToken,
+    [
+        check('commentId').not().isEmpty().withMessage('Please enter a comment id'),
+    ],
+    postController.removeLikeComment
 )
 
 module.exports = router;

@@ -64,7 +64,6 @@ class Comment {
                 throw new Error('You has already liked this comment before');
             }
             await LikesOfComment.addLikeComment(commentId, userId);
-            console.log('yeees')
             const query = `UPDATE Comments SET numLikes = numLikes + 1 WHERE id = ?`;
             const params = [commentId];
             const [result] = await masterConnection.query(query, params);
@@ -78,6 +77,31 @@ class Comment {
         }
 
     }
+
+    static async removeLikeComment(commentId, userId) {
+        let masterConnection = await createMasterConnection();
+
+        try {
+            await masterConnection.beginTransaction();
+
+            const is = await LikesOfComment.hasLikedComment(commentId, userId);
+            if (!is) {
+                throw new Error('You didnt like this comment in the first place');
+            }
+            await LikesOfComment.removeLikeComment(commentId, userId);
+            const query = `UPDATE Comments SET numLikes = numLikes - 1 WHERE id = ?`;
+            const params = [commentId];
+            const [result] = await masterConnection.query(query, params);
+
+            await masterConnection.commit();
+
+            return result;
+        } catch (err) {
+            await masterConnection.rollback();
+            throw new Error(`Failed to remove like from a comment: ${err.message}`);
+        }
+    }
+    
 
 }
 
