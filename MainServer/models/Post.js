@@ -32,7 +32,7 @@ class Post {
         let slave1Connection = await createSlave1Connection();
 
         const offset = (page - 1) * limit;
-        const query = `SELECT userId, createdAt, content, media, numComments, numLikes FROM Posts ORDER BY createdAt DESC LIMIT ?, ?`;
+        const query = `SELECT userId, createdAt, content, media, numComments, numLikes FROM Posts ORDER BY createdAt LIMIT ?, ?`;
         const params = [offset, limit];
 
         try {

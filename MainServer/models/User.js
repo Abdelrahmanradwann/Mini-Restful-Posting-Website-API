@@ -73,6 +73,22 @@ class UserMetaData {
         }
     }
 
+    static async getEmailById(id) {
+        let masterConnection = await createMasterConnection();
+
+        try {
+            const result = await masterConnection.query(
+                `SELECT email FROM UserMetaData WHERE id = ? LIMIT 1`,
+                [id]
+            );
+            console.log('UserMetaData: ', result);
+            return result[0][0].email;
+        }
+
+        catch (err) {
+            throw err;
+        }
+    }
 }
 
 
@@ -163,6 +179,34 @@ class User extends UserMetaData {
         } catch (error) {
             console.error('Error fetching user by email:', error.message);
             throw error;
+        }
+    }
+
+    static async updateInSub(fieldsToUpdate, conditions) {
+        let masterConnection = await createMasterConnection();
+
+        try {
+            // Create dynamic SQL query based on the fields to update
+            const setClause = Object.keys(fieldsToUpdate)
+                .map(field => `${field} = ?`)
+                .join(', ');
+
+            const values = Object.values(fieldsToUpdate);
+            
+            const whereClause = Object.keys(conditions)
+                .map(condition => `${condition} = ?`)
+                .join(' AND ');
+
+            const whereValues = Object.values(conditions);
+
+            const query = `UPDATE Users SET ${setClause} WHERE ${whereClause}`;
+
+            const result = await masterConnection.query(query, [...values, ...whereValues]);
+
+            return result;
+
+        } catch (err) {
+            throw new Error('Error while updating user: ' + err.message);
         }
     }
 }

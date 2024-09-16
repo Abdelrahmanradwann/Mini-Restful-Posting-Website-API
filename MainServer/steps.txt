@@ -90,6 +90,19 @@ get page number from url query (page = ?) by default will be page 1
 get the posts from db and check if the is media then get the media from object store
 
 
+---------------------------
+
+edit profile
+
+user name ( not null )
+bio 
+
+
+edit profile pic
+
+
+
+
 
 
 

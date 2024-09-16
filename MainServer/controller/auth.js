@@ -38,7 +38,7 @@ exports.signUp = async (req, res, next) => {
     let isFile = false;
 
     busboy.on('field',  (fieldname, val) => {
-            metadata[fieldname] = val;
+        metadata[fieldname] = val;
     });
 
 
@@ -54,7 +54,7 @@ exports.signUp = async (req, res, next) => {
         if (await User.userExists({ email: metadata.email })) {
             return res.status(409).json({ msg: 'This email already in use' });
         }
-        const objectName = `${metadata.email}.${Date.now()}.${fieldname.split('.').pop()}`   
+        const objectName = `${metadata.email}.${filename.split('.').pop()}`   
 
         try {
             if (mimeType.startsWith('image/')) {
