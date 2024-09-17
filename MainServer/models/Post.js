@@ -1,5 +1,5 @@
 const { createMasterConnection, createSlave1Connection, createSlave2Connection } = require('../util/db_helpers.js');
-const { likesOfPost, LikesOfPost } = require('./LikesOfPost.js');
+const { LikesOfPost } = require('./LikesOfPost.js');
 
 
 class Post {

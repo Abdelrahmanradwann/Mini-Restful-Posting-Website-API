@@ -94,13 +94,12 @@ class UserMetaData {
 
 class User extends UserMetaData {
     constructor({ userName, isPicExist, numFollowers, numFollowing,
-        email, password, verificationCode = null, timeOfCode = null, confirmation = null, friendsNo = 0, bio = null }) {
+        email, password, verificationCode = null, timeOfCode = null, confirmation = null, bio = null }) {
         super(email, password, verificationCode, timeOfCode, confirmation);
         this.userName = userName;
         this.isPicExist = isPicExist;
         this.numFollowers = numFollowers;
         this.numFollowing = numFollowing;
-        this.friendsNo = friendsNo;
         this.bio = bio;
     }
 
@@ -110,9 +109,9 @@ class User extends UserMetaData {
         await masterConnection.beginTransaction();
         try {
             const result = await masterConnection.query(
-                `INSERT INTO Users (userName, isPicExist, friendsNo, bio, numFollowers, numFollowing)
+                `INSERT INTO Users (userName, isPicExist, bio, numFollowers, numFollowing)
                  VALUES (?, ?, ?, ?, ?, ?)`,
-                [this.userName, this.isPicExist, this.friendsNo, this.bio, this.numFollowers, this.numFollowing]
+                [this.userName, this.isPicExist, this.bio, this.numFollowers, this.numFollowing]
             );
 
             console.log('User saved successfully:', result);
@@ -135,8 +134,6 @@ class User extends UserMetaData {
         let query = '';
         let params = [];
 
-        console.log("id " + id)
-        console.log("email "+ email)
         // Check if the email exists in the UserMetaDat a table
         if (email) {
             query = 'SELECT 1 FROM UserMetaData WHERE email = ? LIMIT 1';

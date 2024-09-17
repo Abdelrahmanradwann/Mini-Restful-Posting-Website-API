@@ -89,7 +89,6 @@ exports.signUp = async (req, res, next) => {
             const user = new User({
                 userName: metadata.userName,
                 isPicExist: metadata.isPicExist,
-                friendsNo: 0,
                 bio: null,
                 numFollowers: 0,
                 numFollowing: 0,

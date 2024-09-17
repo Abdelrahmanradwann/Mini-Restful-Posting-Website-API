@@ -1,8 +1,8 @@
-const { UserMetaData } = require('../models/User')
 const { User } = require('../models/User')
 const { objectStore } = require('../util/storage_helper');
 const Busboy = require('busboy')
-
+const { validationResult } = require('express-validator'); 
+const { Friend } = require('../models/Friend')
 
 exports.editProfile = async (req, res) => {
     const { userName, bio } = req.body;
@@ -91,3 +91,31 @@ exports.editProfilePic = async (req, res) => {
 
     req.pipe(busboy);
 };
+
+
+exports.addFriend = async (req, res) => {
+    let errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).send(errors);
+    }
+    const { friendId } = req.body;
+    if (!await User.userExists({ id: friendId })) {
+        return res.status(404).json({ msg: 'User not found' })
+    }
+
+    if (friendId == req.current.id) {
+        return res.status(400).json({ msg: 'cannot add friend req to yourself' });
+    }
+
+    const wasSent = await Friend.requestSent(req.current.id, friendId);
+    if (wasSent.length > 0) {
+        return res.status(400).json({ msg: 'Friend request has already been sent.' });
+    }
+    try {
+        await Friend.addFriend(req.current.id, friendId);
+        return res.status(200).json({ msg: 'Friend added successfully' });
+    } catch (err) {
+        return res.status(500).json({ msg: err.message });
+    }
+
+}

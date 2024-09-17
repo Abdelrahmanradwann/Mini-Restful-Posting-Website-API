@@ -36,7 +36,7 @@ exports.createPost = (req, res) => {
     busboy.on('file', async (fieldname, file, { filename,mimeType }) => {
         const errors = validation(metadata);
         if (errors.length) {
-            return errors;
+            return res.status(400).json({ error: errors });
         }
         isFile = true;
         const objectName = `${req.current.id}.${date}.${filename.split('.').pop()}`; // taking the extension
@@ -101,7 +101,7 @@ exports.createPost = (req, res) => {
             }
             let post = new Post({
                 content: metadata.content,
-                media: metadata.media,
+                media: 0,
                 userId: req.current.id,
                 createdAt: date,
                 numComments: 0,
