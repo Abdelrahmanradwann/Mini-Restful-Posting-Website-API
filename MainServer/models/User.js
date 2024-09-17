@@ -206,6 +206,29 @@ class User extends UserMetaData {
             throw new Error('Error while updating user: ' + err.message);
         }
     }
+
+
+    static async getUserById(id) {
+        let masterConnection = await createMasterConnection();
+        try {                                                  
+      
+            const [rows] = await masterConnection.query(
+                `SELECT Users.id, Users.*
+                FROM Users
+                WHERE Users.id = ?
+                LIMIT 1`,
+                [id]
+            );
+            if (rows.length > 0) {
+                return rows[0]
+            } else {
+                return null;
+            }
+        } catch (error) {
+            console.error('Error fetching user by email:', error.message);
+            throw error;
+        }
+    }
 }
 
 

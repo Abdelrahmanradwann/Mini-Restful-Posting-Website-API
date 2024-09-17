@@ -2,7 +2,23 @@ const { User } = require('../models/User')
 const { objectStore } = require('../util/storage_helper');
 const Busboy = require('busboy')
 const { validationResult } = require('express-validator'); 
-const { Friend } = require('../models/Friend')
+const { Friend } = require('../models/Friend');
+const e = require('express');
+
+
+
+exports.getUser = (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).send(errors);
+    }
+    const { userId } = req.body;
+    User.getUserById( userId ).then(i => {
+        return res.status(200).json({ user: i });
+    }).catch(i => {
+        return res.status(400).json({ error: i });
+    })
+}
 
 exports.editProfile = async (req, res) => {
     const { userName, bio } = req.body;
@@ -118,4 +134,66 @@ exports.addFriend = async (req, res) => {
         return res.status(500).json({ msg: err.message });
     }
 
+}
+
+
+exports.getPending = (req, res) => {
+    Friend.getPendingRequests(req.current.id).then(result => {
+        res.status(200).json(result);
+    }).catch(err => {
+        res.status(500).json({ msg: err.message });
+    });
+}
+
+exports.acceptRequest = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).send(errors);
+    }
+    const { userId } = req.body;
+    if (!await User.userExists({ id: userId })) {
+        return res.status(404).json({ msg: 'User not found' })
+    }
+
+    Friend.acceptFriend(userId, req.current.id).then(result => {
+        return res.status(200).json({ msg: `Request was accepted` });
+    }).catch(err => { 
+        return res.status(500).json({ err: err.message });
+    })
+        
+}
+
+exports.rejectRequest = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).send(errors);
+    }
+    const { userId } = req.body;
+    if (!await User.userExists({ id: userId })) {
+        return res.status(404).json({ msg: 'User not found' })
+    }
+
+    Friend.rejectFriend(userId, req.current.id).then(result => {
+        return res.status(200).json({ msg: `Request was rejected` });
+    }).catch(err => {
+        return res.status(500).json({ err: err.message });
+    })
+}
+
+
+exports.unfollow = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).send(errors);
+    }
+    const { userId } = req.body;
+    if (!await User.userExists({ id: userId })) {
+        return res.status(404).json({ msg: 'User not found' })
+    }
+
+    Friend.unfollow(req.current.id, userId).then(result => {
+        return res.status(200).json({ msg: `Unfollowed successfully` });
+    }).catch(err => {
+        return res.status(500).json({ err: err.message });
+    })
 }
