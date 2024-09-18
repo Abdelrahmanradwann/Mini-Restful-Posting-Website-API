@@ -213,8 +213,9 @@ class User extends UserMetaData {
         try {                                                  
       
             const [rows] = await masterConnection.query(
-                `SELECT Users.id, Users.*
+                `SELECT Users.id, Users.*, UserMetaData.email
                 FROM Users
+                JOIN UserMetaData ON Users.id = UserMetaData.id
                 WHERE Users.id = ?
                 LIMIT 1`,
                 [id]
@@ -226,6 +227,28 @@ class User extends UserMetaData {
             }
         } catch (error) {
             console.error('Error fetching user by email:', error.message);
+            throw error;
+        }
+    }
+
+    static async getUsersByUserName(userName) {
+        let slave1Connection = await createSlave1Connection();
+
+        try {
+            const [rows] = await slave1Connection.query(
+                `SELECT Users.id, Users.* 
+                 FROM Users
+                 WHERE Users.userName = ?`,
+                [userName]
+            );
+
+            if (rows.length > 0) {
+                return rows
+            } else {
+                return null; 
+            }
+        } catch (error) {
+            console.error('Error fetching users by username:', error.message);
             throw error;
         }
     }

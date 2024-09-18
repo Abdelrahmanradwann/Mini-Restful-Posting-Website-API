@@ -7,6 +7,38 @@ const e = require('express');
 
 
 
+exports.getProfilePic = async (req, res) => {
+    let { objectName } = req.params;  // folder can be 'photos' or 'videos'
+    
+    try {
+        const statObject = await objectStore.statObject('photos', objectName);
+        const fileSize = statObject.size;
+        let ext = 'png';
+        let folder = 'image'; 
+        const ContentType = `${folder}/${ext}`; 
+
+        res.writeHead(200, {    
+            'Content-Length': fileSize,
+            'Content-Type': ContentType,
+        });
+
+        // Stream the media
+        objectStore.getObject('photos', objectName, (err, stream) => {
+            if (err) {
+                return res.status(404).send("Media not found");
+            }
+            stream.pipe(res); 
+            stream.on('end', () => {
+                console.log("Media has been successfully sent.");
+            });
+        });
+   
+
+    } catch (err) {
+        res.status(500).send("Error retrieving media: " + err.message);
+    }
+}
+
 exports.getUser = (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -14,7 +46,7 @@ exports.getUser = (req, res) => {
     }
     const { userId } = req.body;
     User.getUserById( userId ).then(i => {
-        return res.status(200).json({ user: i });
+        return res.status(200).json({ user: i,image:`/api/media/${i.email}.png`});
     }).catch(i => {
         return res.status(400).json({ error: i });
     })
@@ -247,5 +279,17 @@ exports.removeFollowing = async (req, res) => {
         return res.status(500).json({ err: err.message });
     })
 
+}
 
+
+exports.search = (req, res) => {
+    const userName = req.params.userName;
+    if (!userName) {
+        return res.status(400).json({ error: 'Please specify the user name' });
+    }
+    User.getUsersByUserName(userName).then(user => {
+        return res.status(200).json({msg:user})
+    }).catch(err => {
+        return res.status(500).json({ msg: err.message });
+    })
 }

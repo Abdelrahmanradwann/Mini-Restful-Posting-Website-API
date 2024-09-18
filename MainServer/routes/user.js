@@ -40,5 +40,11 @@ router.delete('/friend/remove-following', validateToken,
     check('userId').not().isEmpty().withMessage('Please enter a user id'),
     userController.removeFollowing);
 
+router.get('/search/:userName', validateToken,
+    check('userName').not().isEmpty().withMessage('Please enter the user name'),
+    userController.search)
+
+
+router.get('/media/:objectName', validateToken, userController.getProfilePic)
 
 module.exports = router;

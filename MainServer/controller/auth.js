@@ -51,10 +51,10 @@ exports.signUp = async (req, res, next) => {
         }
 
         // console.log(metadata.email)
-        if (await User.userExists({ email: metadata.email })) {
+        if (await User.userExists({ email: metadata.email.toLowerCase().trim()})) {
             return res.status(409).json({ msg: 'This email already in use' });
         }
-        const objectName = `${metadata.email}.${filename.split('.').pop()}`   
+        const objectName = `${metadata.email.toLowerCase().trim()}.${filename.split('.').pop()}`   
 
         try {
             if (mimeType.startsWith('image/')) {
@@ -92,7 +92,7 @@ exports.signUp = async (req, res, next) => {
                 bio: null,
                 numFollowers: 0,
                 numFollowing: 0,
-                email: metadata.email,
+                email: metadata.email.toLowerCase().trim(),
                 password: hashedPassword,
             });
 
