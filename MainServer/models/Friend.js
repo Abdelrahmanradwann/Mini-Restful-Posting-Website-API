@@ -8,7 +8,7 @@ const stat = {
     p: 'pending'
 };
 
-
+// like a utility class
 
 class Friend {
     constructor(userId, friendId, status) {
@@ -76,7 +76,7 @@ class Friend {
     static async acceptFriend(userId, friendId) {
         const connection = await createMasterConnection();
         try {
-            connection.beginTransaction();
+            await connection.beginTransaction();
 
             const query = 'UPDATE Friends SET status = ? WHERE userId = ? AND friendId = ?';
             await connection.query(query, [stat.a, userId, friendId]);
@@ -87,7 +87,7 @@ class Friend {
             const query3 = 'UPDATE Users SET numFollowing = numFollowing + 1 WHERE id = ?';
             await connection.query(query3, [userId]);
 
-            connection.commit();
+            await connection.commit();
             return;
         } catch (err) {
             await connection.rollback();
@@ -109,7 +109,7 @@ class Friend {
     static async unfollow(userId, friendId) {
         const connection = await createMasterConnection();
         try {
-            connection.beginTransaction();
+            await connection.beginTransaction();
 
             const query = 'DELETE FROM Friends WHERE userId = ? AND friendId = ?';
             await connection.query(query, [userId, friendId]);
@@ -120,10 +120,26 @@ class Friend {
             const query3 = 'UPDATE Users SET numFollowing = numFollowing - 1 WHERE id = ?';
             await connection.query(query3, [userId]);
 
-            connection.commit();
+            await connection.commit();
             return;
         } catch (err) {
             await connection.rollback();
+            throw err;
+        }
+    }
+
+    static async removeFollowing(userId, friendId) {
+        const connectection = await createMasterConnection();
+        try {
+            await connectection.beginTransaction();
+
+            await connectection.query('DELETE FROM Friends WHERE userId = ? AND friendId = ?', [friendId, userId]);
+            await connectection.query('UPDATE Users SET numFollowers = numFollowers - 1 WHERE id = ?', [userId]);
+            await connectection.query('UPDATE Users SET numFollowing = numFollowing - 1 WHERE id = ?', [friendId]);
+
+            await connectection.commit();
+        } catch (err) {
+            connectection.rollback();
             throw err;
         }
     }

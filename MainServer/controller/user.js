@@ -136,6 +136,22 @@ exports.addFriend = async (req, res) => {
 
 }
 
+exports.getFollower = (req, res) => {
+    Friend.getFollowers(req.current.id).then(result => {
+        res.status(200).json(result);
+    }).catch(err => {
+        res.status(500).json({ msg: err.message });
+    });
+}
+
+exports.getFollowing = (req, res) => {
+    Friend.getFollowing(req.current.id).then(result => {
+        res.status(200).json(result);
+    }).catch(err => {
+        res.status(500).json({ msg: err.message });
+    });
+}
+
 
 exports.getPending = (req, res) => {
     Friend.getPendingRequests(req.current.id).then(result => {
@@ -153,6 +169,10 @@ exports.acceptRequest = async (req, res) => {
     const { userId } = req.body;
     if (!await User.userExists({ id: userId })) {
         return res.status(404).json({ msg: 'User not found' })
+    }
+
+    if (userId == req.current.id) {
+        return res.status(400).json({ msg: 'Smth went wrong, user cannot accept a request from himself' });
     }
 
     Friend.acceptFriend(userId, req.current.id).then(result => {
@@ -173,6 +193,10 @@ exports.rejectRequest = async (req, res) => {
         return res.status(404).json({ msg: 'User not found' })
     }
 
+     if (userId == req.current.id) {
+        return res.status(400).json({ msg: 'Smth went wrong, user cannot reject a request from himself' });
+    }
+
     Friend.rejectFriend(userId, req.current.id).then(result => {
         return res.status(200).json({ msg: `Request was rejected` });
     }).catch(err => {
@@ -191,9 +215,37 @@ exports.unfollow = async (req, res) => {
         return res.status(404).json({ msg: 'User not found' })
     }
 
+    if (userId == req.current.id) {
+         return res.status(400).json({ msg: 'Smth went wrong, user cannot unfollow himself' });
+    }
+
     Friend.unfollow(req.current.id, userId).then(result => {
         return res.status(200).json({ msg: `Unfollowed successfully` });
     }).catch(err => {
         return res.status(500).json({ err: err.message });
     })
+}
+
+// my followers decr and his following decr
+exports.removeFollowing = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).send(errors);
+    }
+    const { userId } = req.body;
+    if (!await User.userExists({ id: userId })) {
+        return res.status(404).json({ msg: 'User not found' })
+    }
+
+    if (userId == req.current.id) {
+         return res.status(400).json({ msg: 'Smth went wrong' });
+    }
+
+    Friend.removeFollowing(req.current.id, userId).then(result => {
+        return res.status(200).json({ msg: `Removed successfully` });
+    }).catch(err => {
+        return res.status(500).json({ err: err.message });
+    })
+
+
 }

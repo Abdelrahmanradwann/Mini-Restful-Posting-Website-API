@@ -110,7 +110,7 @@ class User extends UserMetaData {
         try {
             const result = await masterConnection.query(
                 `INSERT INTO Users (userName, isPicExist, bio, numFollowers, numFollowing)
-                 VALUES (?, ?, ?, ?, ?, ?)`,
+                 VALUES (?, ?, ?, ?, ?)`,
                 [this.userName, this.isPicExist, this.bio, this.numFollowers, this.numFollowing]
             );
 

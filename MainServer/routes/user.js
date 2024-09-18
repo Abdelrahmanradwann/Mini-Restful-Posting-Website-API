@@ -5,43 +5,40 @@ const userController = require('../controller/user')
 const { check } = require('express-validator');
 
 
-router.post('/user', validateToken
-    ,
-    check('userId').not().isEmpty().withMessage('Please enter a user id')
-    ,
+router.post('/user', validateToken  ,
+    check('userId').not().isEmpty().withMessage('Please enter a user id') ,
     userController.getUser)
 
-router.patch('/edit', validateToken, userController.editProfile);
+router.patch('/user/profile', validateToken, userController.editProfile);
 
-router.patch('/edit-profilePic',validateToken,userController.editProfilePic)
+router.patch('/user/profile-pic', validateToken, userController.editProfilePic);
 
-router.post('/add-friend', validateToken
-    ,
-        check('friendId').not().isEmpty().withMessage('Please enter a friend id')
-    ,
-    userController.addFriend)
-
-router.get('/pending', validateToken, userController.getPending)
-
-router.patch('/accept', validateToken,
-    check('userId').not().isEmpty().withMessage('Please enter a user id')
-    ,
-    userController.acceptRequest
-)
-
-router.delete('/reject', validateToken,
-    check('userId').not().isEmpty().withMessage('Please enter a user id')
-    ,
-    userController.rejectRequest
-)
+router.post('/friend/request', validateToken, 
+    check('friendId').not().isEmpty().withMessage('Please enter a friend id'),
+    userController.addFriend);
 
 
-router.delete('/unfollow', validateToken,
-    check('userId').not().isEmpty().withMessage('Please enter a user id')
-    ,
-    userController.unfollow
+router.get('/friend/followers', validateToken, userController.getFollower);
 
-)
+router.get('/friend/followering', validateToken, userController.getFollowing);
+
+router.get('/friend/requests/pending', validateToken, userController.getPending);
+
+router.patch('/friend/request/accept', validateToken,
+    check('userId').not().isEmpty().withMessage('Please enter a user id'),
+    userController.acceptRequest);
+
+router.delete('/friend/request/reject', validateToken,
+    check('userId').not().isEmpty().withMessage('Please enter a user id'),
+    userController.rejectRequest);
+
+router.delete('/friend/unfollow', validateToken,
+    check('userId').not().isEmpty().withMessage('Please enter a user id'),
+    userController.unfollow);
+
+router.delete('/friend/remove-following', validateToken,
+    check('userId').not().isEmpty().withMessage('Please enter a user id'),
+    userController.removeFollowing);
 
 
 module.exports = router;
