@@ -28,12 +28,22 @@ class Post {
         }
     }
 
-    static async getPosts(page = 1, limit = 5) {
+    static async getPosts(loggedInUser,page = 1, limit = 5) {
         let slave1Connection = await createSlave1Connection();
 
-        const offset = (page - 1) * limit;
-        const query = `SELECT userId, createdAt, content, media, numComments, numLikes FROM Posts ORDER BY createdAt LIMIT ?, ?`;
-        const params = [offset, limit];
+        let offset = (page - 1) * limit;
+        const query = `
+            SELECT p.userId, p.createdAt, p.content, p.media, p.numComments, p.numLikes
+            FROM Posts p
+            LEFT JOIN Friends f ON p.userId = f.friendId AND f.userId = ? AND f.status = 'accepted'
+            WHERE (f.userId IS NOT NULL OR p.userId = ?)
+            ORDER BY p.createdAt DESC
+            LIMIT ?, ?;
+        `;
+
+        offset = parseInt(offset);
+        limit = parseInt(limit);
+        const params = [loggedInUser, loggedInUser, offset, limit];
 
         try {
             const [rows] = await slave1Connection.query(query, params);

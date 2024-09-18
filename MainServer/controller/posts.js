@@ -131,7 +131,7 @@ exports.getPosts = async (req, res) => {
     const pageNum = page || 1;
     
     try {
-        const rows = await Post.getPosts(pageNum, limit);
+        const rows = await Post.getPosts(req.current.id,pageNum, limit);
 
         // Attach a media URL for each post if media exists
         const postsWithMediaUrls = rows.map((post) => {
