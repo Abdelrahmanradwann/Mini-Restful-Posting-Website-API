@@ -1,6 +1,7 @@
 const { createMasterConnection, createSlave1Connection, createSlave2Connection } = require('../util/db_helpers.js');
 const { Post } = require('./Post.js');
 const { LikesOfComment } = require('./LikesOfComment.js');
+const { use } = require('../routes/posts.js');
 
 class Comment {
     constructor({ userId, postId, numLikes, text, createdAt }) {
@@ -30,12 +31,31 @@ class Comment {
         }
     }
 
-      static async removeComment(commentId,postId) {
+      static async removeComment(commentId, postId, userId) {
         let masterConnection = await createMasterConnection();
 
         try {
             await masterConnection.beginTransaction();
+            let cnt = 0;
+            const [comment] = await masterConnection.query(
+                `SELECT 1 FROM Comments WHERE id = ? AND postId = ? AND userId LIMIT 1`,
+                [commentId, postId,userId]
+            );
 
+            
+            if (!comment.length) {
+                cnt++;
+            }
+
+            if (cnt > 0) {
+                const [post] = await masterConnection.query(`SELECT 1 FROM Posts WHERE id = ? AND userId = ?`, [postId, userId]);
+                if (!post.length) {
+                    cnt++;
+                }
+            }
+            if (cnt == 2) {
+                throw new Error('You are not the owner of the post or the comment');
+            }
             await masterConnection.query(
                 `DELETE FROM Comments WHERE id = ?`,
                 [commentId]

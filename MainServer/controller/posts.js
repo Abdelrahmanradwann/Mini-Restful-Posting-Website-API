@@ -278,7 +278,7 @@ exports.deleteComment = (req, res) => {
         return res.status(400).send(errors);
     }
     const { commentId, postId } = req.body;
-    Comment.removeComment(commentId,postId).then(result => {
+    Comment.removeComment(commentId,postId, req.current.id).then(result => {
         res.status(200).json({
             msg: 'Comment removed successfully',
             result: result
@@ -345,4 +345,18 @@ exports.deletePost = (req, res) => {
 }
 
 
+exports.editPost = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).send(errors);
+    }
+    const { postId, text } = req.body;
+    try {
+        await Post.editPost(postId, text, req.current.id);
+        return res.status(200).json({ msg: 'Post updated successfully' });
+    } catch (err) {
+        return res.status(500).json({ msg: err.message });
+    }
+
+}
 

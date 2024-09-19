@@ -65,4 +65,14 @@ router.delete('/post', validateToken,
     check('postId').not().isEmpty().withMessage('Please enter a post id'),
     postController.deletePost
 )
+
+router.patch('/edit-post', validateToken,
+    [
+        check('postId').not().isEmpty().withMessage('Please enter a post id'),
+        check('text').not().isEmpty().withMessage('Please enter a post text')
+    ],
+    postController.editPost
+)
+
+
 module.exports = router;

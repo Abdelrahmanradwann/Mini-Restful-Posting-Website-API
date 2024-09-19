@@ -184,6 +184,21 @@ class Post {
         }
     }
 
+    static async editPost(postId, text, userId) {
+        let masterConnection = await createMasterConnection();
+
+        try {
+            const [post] = await masterConnection.query(`SELECT 1 FROM Posts WHERE id = ? AND userId = ? LIMIT 1`, [postId, userId]);
+            if (post.length == 0) {
+                throw new Error('You are not the owner of this post');
+            }
+            await masterConnection.query(`UPDATE Posts SET content = ? WHERE id = ?`, [text, postId]);
+            return;
+
+        } catch (err) {
+            throw err;
+        }
+    }
 }
   
 
