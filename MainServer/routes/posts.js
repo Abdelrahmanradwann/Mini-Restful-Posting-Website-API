@@ -60,4 +60,9 @@ router.delete('/like-comment', validateToken,
     postController.removeLikeComment
 )
 
+
+router.delete('/post', validateToken,
+    check('postId').not().isEmpty().withMessage('Please enter a post id'),
+    postController.deletePost
+)
 module.exports = router;

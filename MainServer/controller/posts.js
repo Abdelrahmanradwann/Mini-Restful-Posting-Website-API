@@ -330,5 +330,19 @@ exports.removeLikeComment = (req, res) => {
     })  
 }
 
+exports.deletePost = (req, res) => {
+    if (!validationResult(req).isEmpty()) {
+        return res.status(400).send(validationResult(req));
+    }
+    const { postId } = req.body;
+    Post.deletePost(postId,req.current.id).then(result => {
+        res.status(200).json({
+            msg: 'Post deleted successfully'
+        })
+    }).catch(err => {
+        return res.status(500).json({ error: err.message });
+    })
+}
+
 
 

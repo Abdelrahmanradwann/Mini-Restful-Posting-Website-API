@@ -165,6 +165,25 @@ class Post {
         return;
     }
 
+    static async deletePost(postId, userId) {
+        let masterConnection = await createMasterConnection();
+
+        try {
+            console.log(postId,userId)
+            const [post] = await  masterConnection.query(`SELECT 1 FROM Posts WHERE id = ? AND userId = ? LIMIT 1`, [postId, userId]);
+            console.log(post)
+            if (post.length==0) {
+                throw new Error('Post not found or you are not the author of this post');
+            }
+
+            await masterConnection.query(`DELETE FROM Posts WHERE id = ?`, [postId]);
+            return;
+
+        } catch (err) {
+            throw err;
+        }
+    }
+
 }
   
 
