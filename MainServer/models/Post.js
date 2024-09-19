@@ -199,6 +199,18 @@ class Post {
             throw err;
         }
     }
+
+    static async getUserPosts(userId) {
+        const connection = await createSlave1Connection();
+        try {
+            const query = `SELECT * FROM Posts WHERE userId = ?`;
+            const [rows] = await connection.query(query, [userId]);
+            return rows;
+        } catch (err) {
+            throw err;
+
+        }
+    }
 }
   
 

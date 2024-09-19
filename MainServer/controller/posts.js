@@ -357,6 +357,41 @@ exports.editPost = async (req, res) => {
     } catch (err) {
         return res.status(500).json({ msg: err.message });
     }
+}
+
+
+exports.getUserPosts = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).send(errors);
+    }
+    try {
+        const rows = await Post.getUserPosts(req.current.id)
+        const postsWithMediaUrls = rows.map((post) => {
+            if (post.media == 1) {
+                const createdAtDate = new Date(post.createdAt);
+                const createdAt = createdAtDate.toISOString().slice(0, 19).replace('T', '_') // Replace space with underscore and colon with dash
+                const objectName = `${post.userId}.${createdAt}.png`; 
+                
+                post.mediaUrl = `/api/media/photos/${objectName}`;
+            }
+            else if (post.media == 2) {
+                const createdAtDate = new Date(post.createdAt);
+                const createdAt = createdAtDate.toISOString().slice(0, 19).replace('T', '_')
+                const objectName = `${post.userId}.${createdAt}.webm`; 
+
+                post.mediaUrl = `/api/media/videos/${objectName}`;
+
+            }
+            return post;
+        });
+
+        res.status(200).json(postsWithMediaUrls); // Return the posts with media URLs
+
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
 
 }
+
 

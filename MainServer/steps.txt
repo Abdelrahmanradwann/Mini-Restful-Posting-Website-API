@@ -104,6 +104,8 @@ edit profile pic
 --------------------------
 accept friend request
 
+pass the friendId
+
 update the Friends table making the status accepted
 + 1 to the followers of the recepient 
 + 1 to the following of the sender

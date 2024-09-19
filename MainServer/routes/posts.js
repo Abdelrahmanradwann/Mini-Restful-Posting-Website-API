@@ -74,5 +74,6 @@ router.patch('/edit-post', validateToken,
     postController.editPost
 )
 
+router.post('/user/posts', validateToken, postController.getUserPosts)
 
 module.exports = router;
