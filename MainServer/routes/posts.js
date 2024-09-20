@@ -74,6 +74,18 @@ router.patch('/edit-post', validateToken,
     postController.editPost
 )
 
-router.post('/user/posts', validateToken, postController.getUserPosts)
+router.post('/user/posts', validateToken,
+    check('userId').not().isEmpty().withMessage('Please send a user id'),
+    postController.getUserPosts)
+
+router.post('/post/comments',
+    check('postId').not().isEmpty().withMessage('Please send a post id'),
+    postController.getComments
+)
+
+router.post('/post/likes',
+    check('postId').not().isEmpty().withMessage('Please send a post id'),
+    postController.getLikes
+)
 
 module.exports = router;

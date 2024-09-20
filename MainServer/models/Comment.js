@@ -121,7 +121,24 @@ class Comment {
             throw new Error(`Failed to remove like from a comment: ${err.message}`);
         }
     }
-    
+
+
+    static async getComments(postId) {
+        let connection = await createSlave1Connection();
+
+        try {
+            const [exists] = await connection.query(`SELECT 1 FROM Posts WHERE id = ? LIMIT 1`, [postId]);
+            if (!exists.length) {
+                throw new Error('Post not found')
+            }
+            const query = `SELECT id, userId, numLikes, text, createdAt FROM Comments WHERE postId = ?`;
+            const params = [postId];
+            const [rows] = await connection.query(query, params);
+            return rows;
+        } catch (err) {
+            throw err;
+        }
+    }
 
 }
 

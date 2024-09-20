@@ -16,5 +16,60 @@
 
 
 5) database mysql master and will replicate to two slaves database instances
+
+
+6) Testing the application  ( try different request like editing profile, change profile pic,reject req and so on )
+    3 users, 2 of them will sign up with a profile image, and the other one without
+    user (1, 3), and 2
+    1 will send friend request to 3
+    1 will post a video
+    3 will post a photo
+    3 will get all posts ( he should see only his post )
+    same with 1
+
+    3 will accept the firend request 
+    1 will get all posts, he should see both posts
+    3 will do the same and should still only see his own post
+
+    3 will send a friend request to 1
+    1 will accept friend request
+
+    now 3 should be able to see both posts
+
+    ----------------------------------------------- 
+
+    user 2 will share a post without media
+
+    2 will send friend request to 1 and same with 1
+    both will accept
+
+    2 will get all comments of user 1's post ( should get nothing )
+    then 2 will add the first comment to the post
+
+    user 2 will get all posts, should get 2 posts
+
+    3 will get all comments of the post
+    3 will like user 2's comment ( check in DB )
+
+
+
+    user 4 will sign up and forget his password, so he 'll gonna reset it ( an email should be sent for verification )
+    when he resets it, he will search for user 1 ( using his username ) and add a friend request to user 1 and user 1 will accept
+
+
+    
+    4 will get user 1's posts
+    and he will gonna like his post ( check in DB )
+
+    ultimately, user 4 will share a post and then get all posts ( he should get 2)
+    then he will delete it and get all posts again ( should get one )
+
+
+
+
+
+
+
+
     
 

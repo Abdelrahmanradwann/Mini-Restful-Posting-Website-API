@@ -59,11 +59,16 @@ class Post {
 
         try {
             await masterConnection.beginTransaction();
-            
-            const didLikeBefore = await LikesOfPost.getLikes(postId, userId);
-            if (didLikeBefore) {
-               throw new Error('You already liked this post');
-            }
+
+            const [check] = await masterConnection.query(
+                `SELECT 1 FROM LikesOfPost WHERE postId = ? AND userId = ? LIMIT 1`,
+                [postId, userId]
+            );
+            if (check.length > 0) {
+                throw new Error('You already liked this post');
+            } 
+
+            await LikesOfPost.addLike_Post(postId, userId);
 
             const [rows] = await masterConnection.query(
                 `SELECT id FROM Posts WHERE id = ? LOCK IN SHARE MODE`,
@@ -86,6 +91,7 @@ class Post {
             return;
         } catch (err) {
             // Rollback the transaction in case of error
+            console.log(err)
             await masterConnection.rollback();
             throw new Error('Error while adding like to a post: ' + err.message);
         }
@@ -99,7 +105,7 @@ class Post {
 
             const didLikeBefore = await LikesOfPost.getLikes(postId, userId);
             if (!didLikeBefore) {
-                throw new Error('You already dont like this post');
+                throw new Error('You already didnt like this post');
             }   
             await LikesOfPost.removeLike_Post(postId, userId)
             const [rows] = await masterConnection.query(
@@ -169,7 +175,6 @@ class Post {
         let masterConnection = await createMasterConnection();
 
         try {
-            console.log(postId,userId)
             const [post] = await  masterConnection.query(`SELECT 1 FROM Posts WHERE id = ? AND userId = ? LIMIT 1`, [postId, userId]);
             console.log(post)
             if (post.length==0) {

@@ -6,6 +6,8 @@ const { producer } = require('../util/kafka_helper');
 const Busboy = require('busboy');
 const { objectStore } = require('../util/storage_helper.js')
 const { validationResult } = require('express-validator');
+const { LikesOfComment } = require('../models/LikesOfComment.js');
+const { LikesOfPost } = require('../models/LikesOfPost.js');
 
 
 
@@ -365,8 +367,13 @@ exports.getUserPosts = async (req, res) => {
     if (!errors.isEmpty()) {
         return res.status(400).send(errors);
     }
+
+    const { userId } = req.body;
+    if (!await User.userExists({ id: userId })) {
+        return res.status(404).json({error:'User not found'})
+    }
     try {
-        const rows = await Post.getUserPosts(req.current.id)
+        const rows = await Post.getUserPosts(userId)
         const postsWithMediaUrls = rows.map((post) => {
             if (post.media == 1) {
                 const createdAtDate = new Date(post.createdAt);
@@ -392,6 +399,44 @@ exports.getUserPosts = async (req, res) => {
         return res.status(500).json({ error: err.message });
     }
 
+}
+
+
+
+exports.getComments = (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).send(errors);
+    }
+
+    const { postId } = req.body;
+
+    Comment.getComments(postId).then(result => {
+        res.status(200).json({
+            msg: 'Comments retrieved successfully',
+            result: result
+        })
+    }).catch(err => {
+        return res.status(500).json({ msg: err.message });
+    })
+}
+
+exports.getLikes = (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).send(errors);
+    }
+
+    const { postId } = req.body;
+
+    LikesOfPost.getLikes(postId).then(result => {
+        res.status(200).json({
+            msg: 'Likes retrieved successfully',
+            result: result
+        })
+    }).catch(err => {
+        return res.status(500).json({ msg: err.message });
+    })
 }
 
 

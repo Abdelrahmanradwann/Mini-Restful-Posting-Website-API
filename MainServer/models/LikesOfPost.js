@@ -19,7 +19,7 @@ class LikesOfPost {
                 return true;
             } else {
                 this.addLike_Post(postId, userId)
-                return false;
+                return 'sjsj';
             }
         } catch (error) {
             throw error;
@@ -38,6 +38,23 @@ class LikesOfPost {
         let masterConnection = await createMasterConnection();
         await masterConnection.query(`DELETE FROM LikesOfPost WHERE postId = ? AND  userId = ?`, [postId, userId]);
         return
+    }
+
+      static async getLikes(postId) {
+        let connection = await createSlave1Connection();
+
+        try {
+            const [exists] = await connection.query(`SELECT 1 FROM Posts WHERE id = ? LIMIT 1`, [postId]);
+            if (!exists.length) {
+                throw new Error('Post not found')
+            }
+            const query = `SELECT userId FROM LikesOfPost WHERE postId = ?`;
+            const params = [postId];
+            const [rows] = await connection.query(query, params);
+            return rows;
+        } catch (err) {
+            throw err;
+        }
     }
 
 
