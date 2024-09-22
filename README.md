@@ -42,11 +42,8 @@ I used **MinIO** for storing binary large objects (BLOBs), such as media files. 
 
 I used **MySQL** for this project, primarily due to its performance advantages in cache hits. MySQL stores data according to the primary key, which aligns with my transaction queries. This allows for more records to be retrieved from the buffer pool, minimizing disk access. Unlike PostgreSQL, which uses Multi-Version Concurrency Control (MVCC), MySQL does not face issues with updates to secondary indexes.
 
-## Database schema
-![image](https://github.com/user-attachments/assets/2019b458-dd79-465b-868d-16eeb461ed5a)
-
-
 I chose the default storage engine, **InnoDB**, after comparing it with **MyISAM**. MyISAM lacks support for transactions and row-level locking, both of which are essential for my system. Additionally, MyISAM requires manual recovery in the event of a crash and uses a B-tree structure, while InnoDB utilizes a B+ tree and provides advanced features such as better data integrity and performance in high-concurrency environments.
 
-
+## Database schema
+![image](https://github.com/user-attachments/assets/2019b458-dd79-465b-868d-16eeb461ed5a)
 
