@@ -34,4 +34,19 @@ I used **KRaft** mode for Apache Kafka instead of ZooKeeper because it offers lo
 
 I was initially confused about whether to use **Apache Kafka** or **RabbitMQ** for my messaging system. Ultimately, I chose Kafka because it offers greater scalability and high throughput, making it more suitable for handling large volumes of data. Additionally, Kafka uses a pull model, allowing consumers to request messages at their own pace, which is ideal for scenarios where numerous posts need to be encoded. In contrast, RabbitMQ employs a push model, which may lead to overwhelming the consumers if there is a sudden spike in messages.
 
+### Object Storage
+
+I used **MinIO** for storing binary large objects (BLOBs), such as media files. The storage architecture consists of three storage instances: one serves as a buffer for intermediate storage, while the other two are for permanent storage and are replicated for redundancy. Each of the three storage instances contains two buckets **one for images and another for videos** ensuring organized and efficient management of media content.
+
+### Database
+
+I used **MySQL** for this project, primarily due to its performance advantages in cache hits. MySQL stores data according to the primary key, which aligns with my transaction queries. This allows for more records to be retrieved from the buffer pool, minimizing disk access. Unlike PostgreSQL, which uses Multi-Version Concurrency Control (MVCC), MySQL does not face issues with updates to secondary indexes.
+
+## Database schema
+![image](https://github.com/user-attachments/assets/2019b458-dd79-465b-868d-16eeb461ed5a)
+
+
+I chose the default storage engine, **InnoDB**, after comparing it with **MyISAM**. MyISAM lacks support for transactions and row-level locking, both of which are essential for my system. Additionally, MyISAM requires manual recovery in the event of a crash and uses a B-tree structure, while InnoDB utilizes a B+ tree and provides advanced features such as better data integrity and performance in high-concurrency environments.
+
+
 
